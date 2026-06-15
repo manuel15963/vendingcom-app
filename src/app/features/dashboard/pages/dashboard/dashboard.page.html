@@ -1,0 +1,20 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>VendingCom</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="dashboard-content">
+  <section class="dashboard-panel">
+    <h1>Panel principal</h1>
+    <p>Sesion activa para {{ session?.fullName || session?.username || 'usuario' }}.</p>
+    <p class="muted">{{ session?.email }}</p>
+
+    <ion-button routerLink="/profile">Mi perfil</ion-button>
+    @if (canOpenAdmin) {
+      <ion-button routerLink="/admin">Administracion</ion-button>
+    }
+    <ion-button routerLink="/password/change">Cambiar contrasena</ion-button>
+    <ion-button (click)="logout()">Cerrar sesion</ion-button>
+  </section>
+</ion-content>

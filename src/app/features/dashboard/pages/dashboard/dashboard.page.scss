@@ -1,0 +1,24 @@
+.dashboard-content {
+  --background: #f7fafc;
+}
+
+.dashboard-panel {
+  width: min(960px, calc(100% - 32px));
+  margin: 32px auto;
+}
+
+h1 {
+  margin: 0 0 8px;
+  color: #111827;
+  font-size: 28px;
+}
+
+p {
+  margin: 0 0 24px;
+  color: #475569;
+}
+
+.muted {
+  margin-top: -16px;
+  color: #64748b;
+}

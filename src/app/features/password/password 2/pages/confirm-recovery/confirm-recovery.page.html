@@ -1,0 +1,64 @@
+<ion-content class="auth-content">
+  <div class="auth-wrapper">
+    <div class="auth-card">
+      <h1>Confirmar recuperacion</h1>
+      <p class="subtitle">Usa el codigo de 6 digitos enviado a tu correo.</p>
+
+      <ion-item>
+        <ion-label position="floating">Correo</ion-label>
+        <ion-input
+          [(ngModel)]="email"
+          name="email"
+          type="email">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">Codigo</ion-label>
+        <ion-input
+          [(ngModel)]="code"
+          maxlength="6"
+          name="code"
+          type="text">
+        </ion-input>
+      </ion-item>
+
+      <ion-item>
+        <ion-label position="floating">Nueva contrasena</ion-label>
+        <ion-input
+          [(ngModel)]="newPassword"
+          name="newPassword"
+          type="password">
+        </ion-input>
+      </ion-item>
+
+      <ion-button
+        expand="block"
+        class="primary-button"
+        [disabled]="loading || !email || code.length !== 6 || newPassword.length < 6"
+        (click)="confirmRecovery()">
+        @if (loading) {
+          <ion-spinner name="crescent"></ion-spinner>
+        } @else {
+          Restablecer contrasena
+        }
+      </ion-button>
+
+      <ion-button fill="clear" expand="block" routerLink="/login">
+        Volver al login
+      </ion-button>
+
+      @if (errorMessage) {
+        <ion-text color="danger">
+          <p>{{ errorMessage }}</p>
+        </ion-text>
+      }
+
+      @if (successMessage) {
+        <ion-text color="success">
+          <p>{{ successMessage }}</p>
+        </ion-text>
+      }
+    </div>
+  </div>
+</ion-content>
