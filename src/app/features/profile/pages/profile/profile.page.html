@@ -1,0 +1,52 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>Mi perfil</ion-title>
+    <ion-buttons slot="end">
+      <ion-button routerLink="/dashboard">Panel</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="profile-content">
+  <section class="profile-shell">
+    @if (loading) {
+      <div class="profile-card loading-box">
+        <ion-spinner name="crescent"></ion-spinner>
+      </div>
+    } @else if (profile) {
+      <article class="profile-card">
+        <div class="profile-avatar">
+          {{ profile.fullName.charAt(0) || profile.username.charAt(0) }}
+        </div>
+
+        <div>
+          <span class="eyebrow">Usuario autenticado</span>
+          <h1>{{ profile.fullName }}</h1>
+          <p>{{ profile.email }}</p>
+        </div>
+
+        <dl>
+          <dt>ID</dt>
+          <dd>{{ profile.userId }}</dd>
+          <dt>Usuario</dt>
+          <dd>{{ profile.username }}</dd>
+          <dt>Roles</dt>
+          <dd>
+            @for (role of profile.roles; track role) {
+              <ion-badge color="primary">{{ role }}</ion-badge>
+            }
+          </dd>
+        </dl>
+
+        <div class="profile-actions">
+          <ion-button routerLink="/password/change">Cambiar contrasena</ion-button>
+          <ion-button fill="outline" (click)="loadProfile()">Actualizar</ion-button>
+        </div>
+      </article>
+    } @else {
+      <ion-text color="danger">
+        <p>{{ errorMessage }}</p>
+      </ion-text>
+    }
+  </section>
+</ion-content>

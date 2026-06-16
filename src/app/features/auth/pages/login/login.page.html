@@ -1,0 +1,161 @@
+<ion-content class="login-page" fullscreen>
+  <div class="login-content">
+    <main class="login-screen">
+    <section class="brand-panel" aria-label="Presentacion VendingCom">
+      <div class="brand-glow"></div>
+
+      <img
+        class="brand-logo"
+        src="assets/brand/vendingcom-logo-from-mockup.png"
+        alt="VendingCom">
+
+      <div class="brand-copy">
+        <h1>Soluciones <span>Inteligentes</span></h1>
+        <p>para un futuro eficiente</p>
+      </div>
+
+      <div class="feature-list">
+        <article class="feature-item">
+          <img src="assets/icon/shield.svg" alt="">
+          <div>
+            <strong>Seguro</strong>
+            <span>Protegemos tu informacion con altos estandares.</span>
+          </div>
+        </article>
+
+        <article class="feature-item">
+          <img src="assets/icon/bolt.svg" alt="">
+          <div>
+            <strong>Confiable</strong>
+            <span>Sistema estable y disponible todo el tiempo.</span>
+          </div>
+        </article>
+
+        <article class="feature-item">
+          <img src="assets/icon/chart.svg" alt="">
+          <div>
+            <strong>Eficiente</strong>
+            <span>Gestion inteligente para mejores resultados.</span>
+          </div>
+        </article>
+
+        <article class="feature-item">
+          <img src="assets/icon/support.svg" alt="">
+          <div>
+            <strong>Soporte</strong>
+            <span>Estamos contigo en cada paso del camino.</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="copyright-box">
+        <img src="assets/icon/lock.svg" alt="">
+        <span>2026 VendingCom. Todos los derechos reservados.</span>
+      </div>
+    </section>
+
+    <section class="auth-panel" aria-label="Inicio de sesion">
+      <div class="user-emblem">
+        <img src="assets/icon/user-circle.svg" alt="">
+      </div>
+
+      <div class="auth-heading">
+        <h2>Bienvenido de nuevo</h2>
+        <p>Inicia sesion para continuar</p>
+      </div>
+
+      <form class="login-form" (ngSubmit)="login()">
+        <label class="field-label" for="username">Usuario</label>
+        <div class="field-shell">
+          <img src="assets/icon/user.svg" alt="">
+          <ion-input
+            id="username"
+            [(ngModel)]="username"
+            name="username"
+            type="text"
+            placeholder="Ingresa tu usuario">
+          </ion-input>
+        </div>
+
+        <label class="field-label accent" for="password">Contrasena</label>
+        <div class="field-shell">
+          <img src="assets/icon/lock.svg" alt="">
+          <ion-input
+            id="password"
+            [(ngModel)]="password"
+            name="password"
+            [type]="showPassword ? 'text' : 'password'"
+            placeholder="Ingresa tu contrasena">
+          </ion-input>
+          <button class="icon-button" type="button" aria-label="Mostrar contrasena" (click)="togglePasswordVisibility()">
+            <img src="assets/icon/eye.svg" alt="">
+          </button>
+        </div>
+
+        <div class="form-options">
+          <button class="remember-option" type="button" [class.active]="rememberMe" (click)="toggleRememberMe()">
+            <span>
+              @if (rememberMe) {
+                <img src="assets/icon/checkbox-check.svg" alt="">
+              }
+            </span>
+            Recordarme
+          </button>
+
+          <a routerLink="/password/recovery">Olvidaste tu contrasena?</a>
+        </div>
+
+        <ion-button
+          expand="block"
+          class="login-button"
+          type="submit"
+          [disabled]="loading">
+          @if (loading) {
+            <ion-spinner name="crescent"></ion-spinner>
+          } @else {
+            <img src="assets/icon/login-arrow.svg" alt="">
+            <span>Iniciar sesion</span>
+          }
+        </ion-button>
+      </form>
+
+      <div class="divider">
+        <span></span>
+        <p>o continua con</p>
+        <span></span>
+      </div>
+
+      <div class="social-actions">
+        <button type="button">
+          <img src="assets/icon/google.svg" alt="">
+          Google
+        </button>
+        <button type="button">
+          <img src="assets/icon/microsoft.svg" alt="">
+          Microsoft
+        </button>
+      </div>
+
+      <div class="secure-note">
+        <img src="assets/icon/shield.svg" alt="">
+        <div>
+          <strong>Acceso seguro y protegido</strong>
+          <span>Tus datos estan protegidos con encriptacion de nivel empresarial.</span>
+        </div>
+      </div>
+    </section>
+    </main>
+
+    @if (errorToastOpen) {
+      <div class="login-feedback-panel" role="alert" aria-live="assertive">
+        <div class="login-feedback-icon">!</div>
+        <div class="login-feedback-copy">
+          <strong>{{ errorToastTitle }}</strong>
+          <span>{{ errorToastMessage }}</span>
+        </div>
+        <button type="button" aria-label="Cerrar alerta" (click)="closeErrorToast()">x</button>
+        <div class="login-feedback-progress"></div>
+      </div>
+    }
+  </div>
+</ion-content>
