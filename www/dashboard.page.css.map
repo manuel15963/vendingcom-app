@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["src/app/features/dashboard/pages/dashboard/dashboard.page.scss"],
-  "sourcesContent": [".dashboard-content {\n  --background: #f7fafc;\n}\n\n.dashboard-panel {\n  width: min(960px, calc(100% - 32px));\n  margin: 32px auto;\n}\n\nh1 {\n  margin: 0 0 8px;\n  color: #111827;\n  font-size: 28px;\n}\n\np {\n  margin: 0 0 24px;\n  color: #475569;\n}\n\n.muted {\n  margin-top: -16px;\n  color: #64748b;\n}\n"],
-  "mappings": ";AAAA,CAAA;AACE,gBAAA;;AAGF,CAAA;AACE,SAAA,IAAA,KAAA,EAAA,KAAA,EAAA;AACA,UAAA,KAAA;;AAGF;AACE,UAAA,EAAA,EAAA;AACA,SAAA;AACA,aAAA;;AAGF;AACE,UAAA,EAAA,EAAA;AACA,SAAA;;AAGF,CAAA;AACE,cAAA;AACA,SAAA;;",
-  "names": []
-}
