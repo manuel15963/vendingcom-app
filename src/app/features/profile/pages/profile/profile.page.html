@@ -1,52 +1,224 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Mi perfil</ion-title>
-    <ion-buttons slot="end">
-      <ion-button routerLink="/dashboard">Panel</ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content class="profile-content">
-  <section class="profile-shell">
-    @if (loading) {
-      <div class="profile-card loading-box">
-        <ion-spinner name="crescent"></ion-spinner>
+<ion-content class="profile-content" fullscreen>
+  <div class="profile-layout">
+    <header class="profile-topbar">
+      <div class="profile-brand">
+        <img src="assets/dashboard/icons/dashboard.svg" alt="">
+        <strong>VendingCom</strong>
       </div>
-    } @else if (profile) {
-      <article class="profile-card">
-        <div class="profile-avatar">
-          {{ profile.fullName.charAt(0) || profile.username.charAt(0) }}
-        </div>
 
-        <div>
-          <span class="eyebrow">Usuario autenticado</span>
-          <h1>{{ profile.fullName }}</h1>
-          <p>{{ profile.email }}</p>
-        </div>
+      <button class="profile-menu-button" type="button" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
 
-        <dl>
-          <dt>ID</dt>
-          <dd>{{ profile.userId }}</dd>
-          <dt>Usuario</dt>
-          <dd>{{ profile.username }}</dd>
-          <dt>Roles</dt>
-          <dd>
-            @for (role of profile.roles; track role) {
-              <ion-badge color="primary">{{ role }}</ion-badge>
-            }
-          </dd>
-        </dl>
+      <div class="profile-user-top">
+        <button type="button" aria-label="Notificaciones">
+          <img src="assets/dashboard/icons/notification.svg" alt="">
+          <span>3</span>
+        </button>
+        <div>{{ userInitials }}</div>
+        <strong>{{ displayName }}</strong>
+      </div>
+    </header>
 
-        <div class="profile-actions">
-          <ion-button routerLink="/password/change">Cambiar contrasena</ion-button>
-          <ion-button fill="outline" (click)="loadProfile()">Actualizar</ion-button>
-        </div>
-      </article>
-    } @else {
-      <ion-text color="danger">
-        <p>{{ errorMessage }}</p>
-      </ion-text>
-    }
-  </section>
+    <aside class="profile-sidebar">
+      <nav aria-label="Navegacion de perfil">
+        <span>Panel</span>
+        <a routerLink="/dashboard">
+          <img src="assets/dashboard/icons/dashboard.svg" alt="">
+          Panel principal
+        </a>
+
+        <span>Administracion</span>
+        <a routerLink="/admin">
+          <img src="assets/dashboard/icons/users.svg" alt="">
+          Usuarios
+        </a>
+        <a routerLink="/admin">
+          <img src="assets/dashboard/icons/roles.svg" alt="">
+          Roles
+        </a>
+        <a routerLink="/admin">
+          <img src="assets/dashboard/icons/vending.svg" alt="">
+          Maquinas
+        </a>
+        <a routerLink="/admin">
+          <img src="assets/dashboard/icons/audit.svg" alt="">
+          Auditoria
+        </a>
+
+        <span>Cuenta</span>
+        <a class="active" routerLink="/profile">
+          <img src="assets/profile/icons/profile-user.svg" alt="">
+          Mi perfil
+        </a>
+        <a routerLink="/password/change">
+          <img src="assets/profile/icons/lock.svg" alt="">
+          Cambiar contrasena
+        </a>
+      </nav>
+
+      <button class="profile-logout" type="button" (click)="logout()">
+        <img src="assets/dashboard/icons/logout.svg" alt="">
+        Cerrar sesion
+      </button>
+    </aside>
+
+    <main class="profile-main">
+      <div class="profile-page-title">
+        <h1>Mi perfil</h1>
+        <p>Visualiza y administra tu informacion personal.</p>
+      </div>
+
+      @if (loading) {
+        <section class="profile-loading-card">
+          <ion-spinner name="crescent"></ion-spinner>
+        </section>
+      } @else if (profile) {
+        <section class="profile-hero-card">
+          <div class="profile-portrait-wrap">
+            <div class="profile-portrait">{{ userInitials }}</div>
+            <button type="button" aria-label="Cambiar foto">
+              <img src="assets/profile/icons/edit.svg" alt="">
+            </button>
+          </div>
+
+          <div class="profile-identity">
+            <div>
+              <h2>{{ displayName }}</h2>
+              <img src="assets/profile/icons/verified.svg" alt="">
+            </div>
+            <p>{{ displayEmail }}</p>
+            <span>{{ primaryRole }}</span>
+
+            <div class="profile-quick-facts">
+              <article>
+                <img src="assets/profile/icons/clock.svg" alt="">
+                <div>
+                  <span>Ultimo acceso</span>
+                  <strong>16 Jun 2026, 09:42 AM</strong>
+                </div>
+              </article>
+              <article>
+                <img src="assets/profile/icons/calendar.svg" alt="">
+                <div>
+                  <span>Cuenta creada</span>
+                  <strong>12 Ene 2025</strong>
+                </div>
+              </article>
+              <article>
+                <img src="assets/profile/icons/status-active.svg" alt="">
+                <div>
+                  <span>Estado</span>
+                  <strong>{{ statusLabel }}</strong>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <img class="profile-hero-illustration" src="assets/profile/illustrations/profile-card-illustration.svg" alt="">
+        </section>
+
+        <section class="profile-card-grid">
+          <article class="profile-info-card personal">
+            <div class="profile-section-title">
+              <h2>Informacion personal</h2>
+              <button type="button">
+                <img src="assets/profile/icons/edit.svg" alt="">
+                Editar
+              </button>
+            </div>
+
+            <dl class="profile-info-list">
+              <div>
+                <dt><img src="assets/profile/icons/profile-user.svg" alt=""> Nombres y apellidos</dt>
+                <dd>{{ displayName }}</dd>
+              </div>
+              <div>
+                <dt><img src="assets/profile/icons/email.svg" alt=""> Correo electronico</dt>
+                <dd>{{ displayEmail }}</dd>
+              </div>
+              <div>
+                <dt><img src="assets/profile/icons/phone.svg" alt=""> Telefono</dt>
+                <dd>+51 987 654 321</dd>
+              </div>
+              <div>
+                <dt><img src="assets/profile/icons/id-card.svg" alt=""> Documento de identidad</dt>
+                <dd>DNI 45678912</dd>
+              </div>
+              <div>
+                <dt><img src="assets/profile/icons/location.svg" alt=""> Direccion</dt>
+                <dd>Av. Primavera 123, Santiago de Surco, Lima</dd>
+              </div>
+              <div>
+                <dt><img src="assets/profile/icons/clock.svg" alt=""> Zona horaria</dt>
+                <dd>(GMT-05:00) Lima</dd>
+              </div>
+            </dl>
+          </article>
+
+          <div class="profile-side-stack">
+            <article class="profile-info-card account">
+              <h2>Informacion de la cuenta</h2>
+              <dl class="profile-account-list">
+                <div>
+                  <dt><img src="assets/profile/icons/security-role.svg" alt=""> Rol</dt>
+                  <dd>{{ primaryRole }}</dd>
+                </div>
+                <div>
+                  <dt><img src="assets/profile/icons/lock.svg" alt=""> Permisos</dt>
+                  <dd>Acceso total al sistema</dd>
+                </div>
+                <div>
+                  <dt><img src="assets/profile/icons/status-active.svg" alt=""> Estado de cuenta</dt>
+                  <dd><span>{{ statusLabel }}</span></dd>
+                </div>
+              </dl>
+            </article>
+
+            <article class="profile-info-card recent">
+              <div class="profile-section-title">
+                <h2>Actividad reciente</h2>
+                <a routerLink="/admin">Ver todo</a>
+              </div>
+
+              <div class="profile-activity-list">
+                <div>
+                  <img src="assets/profile/icons/verified.svg" alt="">
+                  <section>
+                    <strong>Inicio de sesion exitoso</strong>
+                    <span>16 Jun 2026, 09:42 AM</span>
+                  </section>
+                  <small>Exito</small>
+                </div>
+                <div>
+                  <img src="assets/profile/icons/edit.svg" alt="">
+                  <section>
+                    <strong>Actualizacion de perfil</strong>
+                    <span>15 Jun 2026, 04:15 PM</span>
+                  </section>
+                  <small class="info">Info</small>
+                </div>
+                <div>
+                  <img src="assets/profile/icons/lock.svg" alt="">
+                  <section>
+                    <strong>Cambio de contrasena</strong>
+                    <span>10 Jun 2026, 11:30 AM</span>
+                  </section>
+                  <small>Exito</small>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+      } @else {
+        <ion-text color="danger">
+          <p>{{ errorMessage }}</p>
+        </ion-text>
+      }
+
+      <footer class="profile-footer">2026 VendingCom. Todos los derechos reservados.</footer>
+    </main>
+  </div>
 </ion-content>
