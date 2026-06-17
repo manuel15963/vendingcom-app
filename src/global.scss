@@ -36,6 +36,21 @@
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
 @import '@ionic/angular/css/palettes/dark.system.css';
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+img,
+svg {
+  max-width: 100%;
+}
+
+body {
+  overflow-x: hidden;
+}
+
 /* Admin Auth module */
 .admin-content {
   --background: #eef3f8;

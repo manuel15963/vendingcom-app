@@ -581,7 +581,7 @@
   }
 }
 
-@media (max-width: 760px) {
+@media (max-width: 1024px) {
   .login-page {
     --background:
       radial-gradient(circle at 50% 0%, rgba(0, 128, 255, 0.22), transparent 30%),
@@ -594,49 +594,70 @@
 
   .login-screen {
     width: 100%;
-    min-height: auto;
+    min-height: 100vh;
     margin: 0;
     border: 0;
     border-radius: 0;
+    background: #030914;
   }
 
   .brand-panel {
-    min-height: 190px;
-    padding: 18px;
-    background-size: cover;
-    background-position: left top;
-  }
-
-  .brand-logo {
-    width: min(300px, 82%);
-    margin-bottom: 0;
-  }
-
-  .feature-list {
-    display: none;
-  }
-
-  .copyright-box {
     display: none;
   }
 
   .auth-panel {
-    min-height: calc(100vh - 190px);
-    padding: 30px 18px 24px;
-    border-radius: 22px 22px 0 0;
+    justify-content: flex-start;
+    min-height: 100vh;
+    padding: max(26px, env(safe-area-inset-top)) 18px 24px;
+    border: 0;
+    border-radius: 0;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(0, 128, 255, 0.24) 0, transparent 28%),
+      linear-gradient(180deg, #06162d 0%, #030914 42%, #030914 100%);
+  }
+
+  .auth-panel::before {
+    display: block;
+    width: min(300px, 82vw);
+    height: 82px;
+    margin: 0 auto 18px;
+    background: url("/assets/brand/vendingcom-logo-from-mockup.png") center / contain no-repeat;
+    content: "";
+    filter: drop-shadow(0 14px 28px rgba(0, 102, 255, 0.34));
+  }
+
+  .auth-heading,
+  .login-form,
+  .divider,
+  .social-actions,
+  .secure-note {
+    width: min(100%, 460px);
+    margin-right: auto;
+    margin-left: auto;
   }
 
   .user-emblem {
-    width: 76px;
-    height: 76px;
+    display: none;
   }
 
   .auth-heading h2 {
-    font-size: 28px;
+    font-size: 27px;
   }
 
   .auth-heading p {
     font-size: 15px;
+  }
+
+  .login-form {
+    margin-top: 24px;
+  }
+
+  .field-label {
+    font-size: 12px;
+  }
+
+  .field-label.accent {
+    margin-top: 18px;
   }
 
   .form-options,
@@ -650,8 +671,14 @@
     gap: 14px;
   }
 
-  .input-shell {
+  .field-shell {
     min-height: 58px;
+    grid-template-columns: 30px minmax(0, 1fr) auto;
+    border-radius: 12px;
+  }
+
+  .field-shell ion-input {
+    font-size: 16px;
   }
 
   .login-button {
@@ -659,12 +686,10 @@
     font-size: 18px;
   }
 
-  .social-actions {
-    gap: 12px;
-  }
-
+  .divider,
+  .social-actions,
   .secure-note {
-    grid-template-columns: 1fr;
+    display: none;
   }
 
   .login-feedback-panel {
@@ -674,21 +699,18 @@
 }
 
 @media (max-width: 430px) {
-  .brand-panel {
-    min-height: 150px;
-  }
-
-  .auth-panel {
-    min-height: calc(100vh - 150px);
+  .auth-panel::before {
+    height: 68px;
+    margin-bottom: 14px;
   }
 
   .auth-heading h2 {
     font-size: 25px;
   }
 
-  .social-button,
-  .secure-note {
-    min-height: 56px;
+  .form-options a,
+  .remember-option {
+    font-size: 14px;
   }
 }
 
