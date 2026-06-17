@@ -97,14 +97,14 @@
                 <img src="assets/profile/icons/clock.svg" alt="">
                 <div>
                   <span>Ultimo acceso</span>
-                  <strong>16 Jun 2026, 09:42 AM</strong>
+                  <strong>{{ displayLastLogin }}</strong>
                 </div>
               </article>
               <article>
                 <img src="assets/profile/icons/calendar.svg" alt="">
                 <div>
                   <span>Cuenta creada</span>
-                  <strong>12 Ene 2025</strong>
+                  <strong>{{ displayCreatedAt }}</strong>
                 </div>
               </article>
               <article>
@@ -141,19 +141,15 @@
               </div>
               <div>
                 <dt><img src="assets/profile/icons/phone.svg" alt=""> Telefono</dt>
-                <dd>+51 987 654 321</dd>
+                <dd>{{ displayPhone }}</dd>
               </div>
               <div>
                 <dt><img src="assets/profile/icons/id-card.svg" alt=""> Documento de identidad</dt>
-                <dd>DNI 45678912</dd>
-              </div>
-              <div>
-                <dt><img src="assets/profile/icons/location.svg" alt=""> Direccion</dt>
-                <dd>Av. Primavera 123, Santiago de Surco, Lima</dd>
+                <dd>{{ displayDocument }}</dd>
               </div>
               <div>
                 <dt><img src="assets/profile/icons/clock.svg" alt=""> Zona horaria</dt>
-                <dd>(GMT-05:00) Lima</dd>
+                <dd>America/Lima (GMT-05:00)</dd>
               </div>
             </dl>
           </article>

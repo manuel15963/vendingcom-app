@@ -30,6 +30,19 @@ import { AuthUserResponse, CreateUserRequest, UpdateUserRequest } from '../../..
 type AdminTab = 'users' | 'roles' | 'audit';
 type UserFormMode = 'create' | 'edit';
 type UserFormField = 'username' | 'email' | 'password' | 'fullName' | 'phoneNumber' | 'documentNumber' | 'roleCode';
+type FeedbackTone = 'success' | 'warning' | 'danger';
+type AuditDataSource = 'old' | 'new';
+
+interface AuditDataField {
+  key: string;
+  label: string;
+}
+
+interface AuditChange {
+  label: string;
+  before: string;
+  after: string;
+}
 
 interface UserFormModel {
   userId?: number;
@@ -85,6 +98,7 @@ export class AdminPanelPage implements OnInit {
 
   activeTab: AdminTab = 'users';
   users: AuthUserResponse[] = [];
+  allUsers: AuthUserResponse[] = [];
   roles: AuthRoleResponse[] = [];
   auditLogs: AuthAuditLogResponse[] = [];
   selectedAuditLog: AuthAuditLogResponse | null = null;
@@ -106,11 +120,22 @@ export class AdminPanelPage implements OnInit {
   confirmationModalOpen = false;
   successModalTitle = '';
   successModalMessage = '';
-  private pendingSuccessModal: { title: string; message: string } | null = null;
+  successModalTone: FeedbackTone = 'success';
+  private pendingSuccessModal: { title: string; message: string; tone?: FeedbackTone } | null = null;
   pendingUserAction: PendingUserAction | null = null;
   userFormMode: UserFormMode = 'create';
   userForm: UserFormModel = this.getEmptyUserForm();
   touchedUserFields: Partial<Record<UserFormField, boolean>> = {};
+  readonly auditIdentityFields: AuditDataField[] = [
+    { key: 'username', label: 'Usuario' },
+    { key: 'fullName', label: 'Nombre' },
+    { key: 'email', label: 'Correo' },
+    { key: 'phoneNumber', label: 'Telefono' },
+    { key: 'documentNumber', label: 'Documento' },
+    { key: 'userStatus', label: 'Estado' },
+  ];
+
+  private readonly auditDataCache = new Map<string, Record<string, unknown> | null>();
 
   readonly session = this.authApi.getCurrentSession();
   readonly canManageUsers = this.authApi.hasAnyRole(['ADMIN']);
@@ -204,6 +229,9 @@ export class AdminPanelPage implements OnInit {
     this.usersApi.findAll({ status: this.userStatusFilter }).subscribe({
       next: (users) => {
         this.users = users;
+        if (this.userStatusFilter === undefined) {
+          this.allUsers = users;
+        }
         this.loadingUsers = false;
       },
       error: (error) => this.handleLoadError(error, 'No se pudieron cargar los usuarios.')
@@ -299,7 +327,7 @@ export class AdminPanelPage implements OnInit {
       this.pendingSuccessModal = null;
 
       window.setTimeout(() => {
-        this.showSuccessModal(successModal.title, successModal.message);
+        this.showSuccessModal(successModal.title, successModal.message, successModal.tone);
       }, 120);
     }
   }
@@ -425,7 +453,7 @@ export class AdminPanelPage implements OnInit {
       next: () => {
         this.closeConfirmationModal();
         window.setTimeout(() => {
-          this.showSuccessModal(successTitle, successMessage);
+          this.showSuccessModal(successTitle, successMessage, action.type === 'lock' ? 'warning' : action.type === 'deactivate' ? 'danger' : 'success');
         }, 120);
         this.loadUsers();
       },
@@ -473,6 +501,102 @@ export class AdminPanelPage implements OnInit {
 
   getRoleOptions(): AuthRoleResponse[] {
     return this.roles.filter((role) => role.roleStatus === 1);
+  }
+
+  getAuditUserLabel(userId?: number | null): string {
+    if (!userId) {
+      return '-';
+    }
+
+    const user = this.allUsers.find((item) => item.userId === userId) || this.users.find((item) => item.userId === userId);
+
+    return user ? `${user.fullName || user.username}` : `Usuario #${userId}`;
+  }
+
+  getAuditActionLabel(actionType?: string | null): string {
+    const actionMap: Record<string, string> = {
+      LOGIN_SUCCESS: 'Inicio correcto',
+      LOGIN_FAILED: 'Inicio fallido',
+      USER_CREATED: 'Usuario creado',
+      USER_UPDATED: 'Usuario actualizado',
+      USER_LOCKED: 'Usuario bloqueado',
+      USER_ACTIVATED: 'Usuario activado',
+      USER_DELETED: 'Usuario eliminado',
+      PASSWORD_CHANGED: 'Contrasena cambiada',
+      PASSWORD_RECOVERY_REQUESTED: 'Recuperacion solicitada',
+      PASSWORD_RESET: 'Contrasena restablecida',
+    };
+    const normalizedAction = (actionType || '').trim().toUpperCase();
+
+    return actionMap[normalizedAction] || this.formatAuditToken(normalizedAction || 'Evento');
+  }
+
+  getAuditActionClass(actionType?: string | null): string {
+    const normalizedAction = (actionType || '').trim().toUpperCase();
+
+    if (normalizedAction.includes('FAILED') || normalizedAction.includes('DELETED')) {
+      return 'danger';
+    }
+
+    if (normalizedAction.includes('LOCK') || normalizedAction.includes('RECOVERY') || normalizedAction.includes('PASSWORD')) {
+      return 'warning';
+    }
+
+    if (normalizedAction.includes('LOGIN') || normalizedAction.includes('CREATED') || normalizedAction.includes('UPDATED') || normalizedAction.includes('ACTIVATED')) {
+      return 'success';
+    }
+
+    return 'info';
+  }
+
+  getAuditSubject(auditLog: AuthAuditLogResponse): string {
+    const parsedData = this.getAuditParsedData(auditLog, 'new') || this.getAuditParsedData(auditLog, 'old');
+    const fullName = this.getParsedText(parsedData, 'fullName');
+    const username = this.getParsedText(parsedData, 'username');
+
+    if (fullName && username) {
+      return `${fullName} (@${username})`;
+    }
+
+    return fullName || username || this.getAuditUserLabel(auditLog.affectedUserId);
+  }
+
+  getAuditDataValue(auditLog: AuthAuditLogResponse, source: AuditDataSource, key: string): string {
+    const parsedData = this.getAuditParsedData(auditLog, source);
+
+    if (key === 'documentNumber') {
+      const documentType = this.getParsedText(parsedData, 'documentType') || 'Documento';
+      const documentNumber = this.getParsedText(parsedData, 'documentNumber');
+
+      return documentNumber ? `${documentType} ${documentNumber}` : '-';
+    }
+
+    return this.formatAuditValue(parsedData?.[key], key);
+  }
+
+  getAuditChanges(auditLog: AuthAuditLogResponse): AuditChange[] {
+    const oldData = this.getAuditParsedData(auditLog, 'old');
+    const newData = this.getAuditParsedData(auditLog, 'new');
+
+    if (!oldData || !newData) {
+      return [];
+    }
+
+    const keys = Array.from(new Set([...Object.keys(oldData), ...Object.keys(newData)]));
+
+    return keys
+      .filter((key) => JSON.stringify(oldData[key] ?? null) !== JSON.stringify(newData[key] ?? null))
+      .map((key) => ({
+        label: this.getAuditFieldLabel(key),
+        before: this.formatAuditValue(oldData[key], key),
+        after: this.formatAuditValue(newData[key], key),
+      }));
+  }
+
+  getAuditRawData(auditLog: AuthAuditLogResponse, source: AuditDataSource): string {
+    const rawData = source === 'old' ? auditLog.oldData : auditLog.newData;
+
+    return rawData?.trim() || '-';
   }
 
   getRoleDisplayName(role: AuthRoleResponse): string {
@@ -632,9 +756,10 @@ export class AdminPanelPage implements OnInit {
     }
   }
 
-  private showSuccessModal(title: string, message: string): void {
+  private showSuccessModal(title: string, message: string, tone: FeedbackTone = 'success'): void {
     this.successModalTitle = title;
     this.successModalMessage = message;
+    this.successModalTone = tone;
     this.successModalOpen = true;
   }
 
@@ -660,6 +785,88 @@ export class AdminPanelPage implements OnInit {
     const normalizedRole = role.trim().toUpperCase();
 
     return roleMap[normalizedRole] || role;
+  }
+
+  private getAuditParsedData(auditLog: AuthAuditLogResponse, source: AuditDataSource): Record<string, unknown> | null {
+    const rawData = source === 'old' ? auditLog.oldData : auditLog.newData;
+
+    if (!rawData?.trim()) {
+      return null;
+    }
+
+    if (this.auditDataCache.has(rawData)) {
+      return this.auditDataCache.get(rawData) || null;
+    }
+
+    try {
+      const parsedData = JSON.parse(rawData) as unknown;
+      const normalizedData = parsedData && typeof parsedData === 'object' && !Array.isArray(parsedData)
+        ? parsedData as Record<string, unknown>
+        : null;
+
+      this.auditDataCache.set(rawData, normalizedData);
+      return normalizedData;
+    } catch {
+      this.auditDataCache.set(rawData, null);
+      return null;
+    }
+  }
+
+  private getParsedText(parsedData: Record<string, unknown> | null, key: string): string {
+    const value = parsedData?.[key];
+
+    return typeof value === 'string' ? value.trim() : '';
+  }
+
+  private getAuditFieldLabel(key: string): string {
+    const labels: Record<string, string> = {
+      userId: 'ID usuario',
+      username: 'Usuario',
+      email: 'Correo',
+      fullName: 'Nombre',
+      phoneNumber: 'Telefono',
+      documentType: 'Tipo documento',
+      documentNumber: 'Documento',
+      userStatus: 'Estado',
+      createdAt: 'Creado',
+      updatedAt: 'Actualizado',
+      lastLoginAt: 'Ultimo login',
+    };
+
+    return labels[key] || this.formatAuditToken(key);
+  }
+
+  private formatAuditValue(value: unknown, key?: string): string {
+    if (value === null || value === undefined || value === '') {
+      return '-';
+    }
+
+    if (key === 'userStatus' && typeof value === 'number') {
+      return this.getUserStatusLabel(value);
+    }
+
+    if ((key === 'createdAt' || key === 'updatedAt' || key === 'lastLoginAt') && typeof value === 'string') {
+      return new Intl.DateTimeFormat('es-PE', {
+        dateStyle: 'short',
+        timeStyle: 'short',
+        timeZone: 'America/Lima',
+      }).format(new Date(value));
+    }
+
+    if (typeof value === 'object') {
+      return JSON.stringify(value);
+    }
+
+    return String(value);
+  }
+
+  private formatAuditToken(value: string): string {
+    return value
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/[_-]+/g, ' ')
+      .trim()
+      .toLowerCase()
+      .replace(/\b\w/g, (letter) => letter.toUpperCase());
   }
 
   private handleFormError(error: HttpErrorResponse, fallbackMessage: string): void {
