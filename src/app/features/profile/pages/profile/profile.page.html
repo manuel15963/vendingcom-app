@@ -97,14 +97,14 @@
                 <img src="assets/profile/icons/clock.svg" alt="">
                 <div>
                   <span>Ultimo acceso</span>
-                  <strong>16 Jun 2026, 09:42 AM</strong>
+                  <strong>{{ displayLastLogin }}</strong>
                 </div>
               </article>
               <article>
                 <img src="assets/profile/icons/calendar.svg" alt="">
                 <div>
                   <span>Cuenta creada</span>
-                  <strong>12 Ene 2025</strong>
+                  <strong>{{ displayCreatedAt }}</strong>
                 </div>
               </article>
               <article>
@@ -141,11 +141,11 @@
               </div>
               <div>
                 <dt><img src="assets/profile/icons/phone.svg" alt=""> Telefono</dt>
-                <dd>No registrado</dd>
+                <dd>{{ displayPhone }}</dd>
               </div>
               <div>
                 <dt><img src="assets/profile/icons/id-card.svg" alt=""> Documento de identidad</dt>
-                <dd>No registrado</dd>
+                <dd>{{ displayDocument }}</dd>
               </div>
               <div>
                 <dt><img src="assets/profile/icons/clock.svg" alt=""> Zona horaria</dt>

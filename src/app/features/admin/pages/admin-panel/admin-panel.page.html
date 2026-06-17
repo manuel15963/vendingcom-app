@@ -307,8 +307,15 @@
                     <tbody>
                       @for (auditLog of auditLogs; track auditLog.auditLogId) {
                         <tr>
-                          <td data-label="Accion"><strong>{{ auditLog.actionType }}</strong></td>
-                          <td data-label="Tabla">{{ auditLog.affectedTableName || '-' }}</td>
+                          <td data-label="Accion">
+                            <div class="audit-action-cell">
+                              <span class="audit-action-badge" [ngClass]="getAuditActionClass(auditLog.actionType)">
+                                {{ getAuditActionLabel(auditLog.actionType) }}
+                              </span>
+                              <small>{{ auditLog.actionDescription || auditLog.actionType }}</small>
+                            </div>
+                          </td>
+                          <td data-label="Tabla">{{ auditLog.affectedTableName || '-' }} #{{ auditLog.affectedRecordId || '-' }}</td>
                           <td data-label="Usuario afectado">{{ getAuditUserLabel(auditLog.affectedUserId) }}</td>
                           <td data-label="Ejecutado por">{{ getAuditUserLabel(auditLog.executedByUserId) }}</td>
                           <td data-label="Fecha">{{ auditLog.executedAt | date:'short' }}</td>
@@ -624,26 +631,92 @@
 
       <ion-content class="modal-content">
         @if (selectedAuditLog) {
-          <dl class="detail-list">
-            <dt>Accion</dt>
-            <dd>{{ selectedAuditLog.actionType }}</dd>
-            <dt>Descripcion</dt>
-            <dd>{{ selectedAuditLog.actionDescription || '-' }}</dd>
-            <dt>Tabla / registro</dt>
-            <dd>{{ selectedAuditLog.affectedTableName || '-' }} #{{ selectedAuditLog.affectedRecordId || '-' }}</dd>
-            <dt>Usuario afectado</dt>
-            <dd>{{ getAuditUserLabel(selectedAuditLog.affectedUserId) }}</dd>
-            <dt>Ejecutado por</dt>
-            <dd>{{ getAuditUserLabel(selectedAuditLog.executedByUserId) }}</dd>
-            <dt>IP</dt>
-            <dd>{{ selectedAuditLog.ipAddress || '-' }}</dd>
-            <dt>User agent</dt>
-            <dd>{{ selectedAuditLog.userAgent || '-' }}</dd>
-            <dt>Datos anteriores</dt>
-            <dd><pre>{{ selectedAuditLog.oldData || '-' }}</pre></dd>
-            <dt>Datos nuevos</dt>
-            <dd><pre>{{ selectedAuditLog.newData || '-' }}</pre></dd>
-          </dl>
+          <section class="audit-detail-card">
+            <div class="audit-detail-hero">
+              <span class="audit-action-badge" [ngClass]="getAuditActionClass(selectedAuditLog.actionType)">
+                {{ getAuditActionLabel(selectedAuditLog.actionType) }}
+              </span>
+              <h2>{{ selectedAuditLog.actionDescription || selectedAuditLog.actionType }}</h2>
+              <p>{{ getAuditSubject(selectedAuditLog) }}</p>
+            </div>
+
+            <div class="audit-meta-grid">
+              <article>
+                <span>Tabla / registro</span>
+                <strong>{{ selectedAuditLog.affectedTableName || '-' }} #{{ selectedAuditLog.affectedRecordId || '-' }}</strong>
+              </article>
+              <article>
+                <span>Usuario afectado</span>
+                <strong>{{ getAuditUserLabel(selectedAuditLog.affectedUserId) }}</strong>
+              </article>
+              <article>
+                <span>Ejecutado por</span>
+                <strong>{{ getAuditUserLabel(selectedAuditLog.executedByUserId) }}</strong>
+              </article>
+              <article>
+                <span>Fecha</span>
+                <strong>{{ selectedAuditLog.executedAt | date:'medium' }}</strong>
+              </article>
+              <article>
+                <span>IP</span>
+                <strong>{{ selectedAuditLog.ipAddress || '-' }}</strong>
+              </article>
+              <article>
+                <span>Agente</span>
+                <strong>{{ selectedAuditLog.userAgent || '-' }}</strong>
+              </article>
+            </div>
+
+            <section class="audit-user-snapshot">
+              <div class="audit-block-title">
+                <span>Resumen del registro</span>
+                <small>Datos nuevos</small>
+              </div>
+              <div class="audit-snapshot-grid">
+                @for (field of auditIdentityFields; track field.key) {
+                  <article>
+                    <span>{{ field.label }}</span>
+                    <strong>{{ getAuditDataValue(selectedAuditLog, 'new', field.key) }}</strong>
+                  </article>
+                }
+              </div>
+            </section>
+
+            <section class="audit-changes">
+              <div class="audit-block-title">
+                <span>Cambios detectados</span>
+                <small>{{ getAuditChanges(selectedAuditLog).length }} cambio(s)</small>
+              </div>
+
+              @for (change of getAuditChanges(selectedAuditLog); track change.label) {
+                <article>
+                  <strong>{{ change.label }}</strong>
+                  <div>
+                    <span>Antes</span>
+                    <p>{{ change.before }}</p>
+                  </div>
+                  <div>
+                    <span>Despues</span>
+                    <p>{{ change.after }}</p>
+                  </div>
+                </article>
+              } @empty {
+                <p class="audit-empty-note">No se detectaron diferencias directas entre los datos anteriores y nuevos.</p>
+              }
+            </section>
+
+            <details class="audit-raw-details">
+              <summary>Ver JSON original</summary>
+              <div>
+                <span>Datos anteriores</span>
+                <pre>{{ getAuditRawData(selectedAuditLog, 'old') }}</pre>
+              </div>
+              <div>
+                <span>Datos nuevos</span>
+                <pre>{{ getAuditRawData(selectedAuditLog, 'new') }}</pre>
+              </div>
+            </details>
+          </section>
         }
       </ion-content>
     </ng-template>
