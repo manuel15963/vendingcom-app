@@ -309,11 +309,13 @@
                         <tr>
                           <td data-label="Accion"><strong>{{ auditLog.actionType }}</strong></td>
                           <td data-label="Tabla">{{ auditLog.affectedTableName || '-' }}</td>
-                          <td data-label="Usuario afectado">{{ auditLog.affectedUserId || '-' }}</td>
-                          <td data-label="Ejecutado por">{{ auditLog.executedByUserId || '-' }}</td>
+                          <td data-label="Usuario afectado">{{ getAuditUserLabel(auditLog.affectedUserId) }}</td>
+                          <td data-label="Ejecutado por">{{ getAuditUserLabel(auditLog.executedByUserId) }}</td>
                           <td data-label="Fecha">{{ auditLog.executedAt | date:'short' }}</td>
                           <td data-label="Detalle">
-                            <button class="ghost-action compact" type="button" (click)="openAuditDetail(auditLog)">Ver</button>
+                            <button class="audit-eye-action" type="button" aria-label="Ver detalle de auditoria" (click)="openAuditDetail(auditLog)">
+                              <img src="assets/icon/eye.svg" alt="">
+                            </button>
                           </td>
                         </tr>
                       } @empty {
@@ -595,8 +597,8 @@
     (didDismiss)="closeSuccessModal()">
     <ng-template>
       <ion-content class="success-modal-content">
-        <div class="success-card">
-          <div class="success-mark">OK</div>
+        <div class="success-card" [ngClass]="successModalTone">
+          <div class="success-mark">{{ successModalTone === 'danger' ? '!' : 'OK' }}</div>
           <span class="mode-pill">Operacion completada</span>
           <h2>{{ successModalTitle }}</h2>
           <p>{{ successModalMessage }}</p>
@@ -629,6 +631,10 @@
             <dd>{{ selectedAuditLog.actionDescription || '-' }}</dd>
             <dt>Tabla / registro</dt>
             <dd>{{ selectedAuditLog.affectedTableName || '-' }} #{{ selectedAuditLog.affectedRecordId || '-' }}</dd>
+            <dt>Usuario afectado</dt>
+            <dd>{{ getAuditUserLabel(selectedAuditLog.affectedUserId) }}</dd>
+            <dt>Ejecutado por</dt>
+            <dd>{{ getAuditUserLabel(selectedAuditLog.executedByUserId) }}</dd>
             <dt>IP</dt>
             <dd>{{ selectedAuditLog.ipAddress || '-' }}</dd>
             <dt>User agent</dt>

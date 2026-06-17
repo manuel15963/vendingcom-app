@@ -30,6 +30,7 @@ import { AuthUserResponse, CreateUserRequest, UpdateUserRequest } from '../../..
 type AdminTab = 'users' | 'roles' | 'audit';
 type UserFormMode = 'create' | 'edit';
 type UserFormField = 'username' | 'email' | 'password' | 'fullName' | 'phoneNumber' | 'documentNumber' | 'roleCode';
+type FeedbackTone = 'success' | 'warning' | 'danger';
 
 interface UserFormModel {
   userId?: number;
@@ -85,6 +86,7 @@ export class AdminPanelPage implements OnInit {
 
   activeTab: AdminTab = 'users';
   users: AuthUserResponse[] = [];
+  allUsers: AuthUserResponse[] = [];
   roles: AuthRoleResponse[] = [];
   auditLogs: AuthAuditLogResponse[] = [];
   selectedAuditLog: AuthAuditLogResponse | null = null;
@@ -106,7 +108,8 @@ export class AdminPanelPage implements OnInit {
   confirmationModalOpen = false;
   successModalTitle = '';
   successModalMessage = '';
-  private pendingSuccessModal: { title: string; message: string } | null = null;
+  successModalTone: FeedbackTone = 'success';
+  private pendingSuccessModal: { title: string; message: string; tone?: FeedbackTone } | null = null;
   pendingUserAction: PendingUserAction | null = null;
   userFormMode: UserFormMode = 'create';
   userForm: UserFormModel = this.getEmptyUserForm();
@@ -204,6 +207,9 @@ export class AdminPanelPage implements OnInit {
     this.usersApi.findAll({ status: this.userStatusFilter }).subscribe({
       next: (users) => {
         this.users = users;
+        if (this.userStatusFilter === undefined) {
+          this.allUsers = users;
+        }
         this.loadingUsers = false;
       },
       error: (error) => this.handleLoadError(error, 'No se pudieron cargar los usuarios.')
@@ -299,7 +305,7 @@ export class AdminPanelPage implements OnInit {
       this.pendingSuccessModal = null;
 
       window.setTimeout(() => {
-        this.showSuccessModal(successModal.title, successModal.message);
+        this.showSuccessModal(successModal.title, successModal.message, successModal.tone);
       }, 120);
     }
   }
@@ -425,7 +431,7 @@ export class AdminPanelPage implements OnInit {
       next: () => {
         this.closeConfirmationModal();
         window.setTimeout(() => {
-          this.showSuccessModal(successTitle, successMessage);
+          this.showSuccessModal(successTitle, successMessage, action.type === 'lock' ? 'warning' : action.type === 'deactivate' ? 'danger' : 'success');
         }, 120);
         this.loadUsers();
       },
@@ -473,6 +479,16 @@ export class AdminPanelPage implements OnInit {
 
   getRoleOptions(): AuthRoleResponse[] {
     return this.roles.filter((role) => role.roleStatus === 1);
+  }
+
+  getAuditUserLabel(userId?: number | null): string {
+    if (!userId) {
+      return '-';
+    }
+
+    const user = this.allUsers.find((item) => item.userId === userId) || this.users.find((item) => item.userId === userId);
+
+    return user ? `${user.fullName || user.username}` : `Usuario #${userId}`;
   }
 
   getRoleDisplayName(role: AuthRoleResponse): string {
@@ -632,9 +648,10 @@ export class AdminPanelPage implements OnInit {
     }
   }
 
-  private showSuccessModal(title: string, message: string): void {
+  private showSuccessModal(title: string, message: string, tone: FeedbackTone = 'success'): void {
     this.successModalTitle = title;
     this.successModalMessage = message;
+    this.successModalTone = tone;
     this.successModalOpen = true;
   }
 
