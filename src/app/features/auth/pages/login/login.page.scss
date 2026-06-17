@@ -582,70 +582,61 @@
 }
 
 @media (max-width: 760px) {
+  .login-page {
+    --background:
+      radial-gradient(circle at 50% 0%, rgba(0, 128, 255, 0.22), transparent 30%),
+      #030914;
+  }
+
+  .login-content {
+    padding: 0;
+  }
+
   .login-screen {
-    width: min(100% - 18px, 540px);
+    width: 100%;
     min-height: auto;
-    margin: 9px auto;
-    border-radius: 18px;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
   }
 
   .brand-panel {
-    min-height: 420px;
-    padding: 22px;
+    min-height: 190px;
+    padding: 18px;
+    background-size: cover;
+    background-position: left top;
   }
 
   .brand-logo {
-    width: 88%;
-    margin-bottom: 26px;
-  }
-
-  .brand-copy,
-  .feature-list {
-    width: 100%;
-  }
-
-  .brand-copy h1 {
-    font-size: 38px;
-  }
-
-  .brand-copy p {
-    font-size: 19px;
+    width: min(300px, 82%);
+    margin-bottom: 0;
   }
 
   .feature-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .feature-item {
-    grid-template-columns: 1fr;
-    align-items: start;
-    min-height: 136px;
-  }
-
-  .feature-item img {
-    width: 48px;
-    height: 48px;
+    display: none;
   }
 
   .copyright-box {
-    position: relative;
-    bottom: auto;
-    left: auto;
-    margin-top: 20px;
+    display: none;
   }
 
   .auth-panel {
-    padding: 34px 20px 28px;
-    border-radius: 18px 18px 0 0;
+    min-height: calc(100vh - 190px);
+    padding: 30px 18px 24px;
+    border-radius: 22px 22px 0 0;
   }
 
   .user-emblem {
-    width: 84px;
-    height: 84px;
+    width: 76px;
+    height: 76px;
+  }
+
+  .auth-heading h2 {
+    font-size: 28px;
   }
 
   .auth-heading p {
-    font-size: 17px;
+    font-size: 15px;
   }
 
   .form-options,
@@ -656,11 +647,16 @@
   .form-options {
     align-items: flex-start;
     flex-direction: column;
+    gap: 14px;
+  }
+
+  .input-shell {
+    min-height: 58px;
   }
 
   .login-button {
-    min-height: 62px;
-    font-size: 19px;
+    min-height: 58px;
+    font-size: 18px;
   }
 
   .social-actions {
@@ -669,6 +665,30 @@
 
   .secure-note {
     grid-template-columns: 1fr;
+  }
+
+  .login-feedback-panel {
+    top: 14px;
+    width: min(100% - 24px, 420px);
+  }
+}
+
+@media (max-width: 430px) {
+  .brand-panel {
+    min-height: 150px;
+  }
+
+  .auth-panel {
+    min-height: calc(100vh - 150px);
+  }
+
+  .auth-heading h2 {
+    font-size: 25px;
+  }
+
+  .social-button,
+  .secure-note {
+    min-height: 56px;
   }
 }
 
