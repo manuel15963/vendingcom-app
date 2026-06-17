@@ -1499,21 +1499,291 @@
   .access-table {
     overflow-x: auto;
   }
+
+  .entity-modal {
+    --width: calc(100% - 18px);
+    --height: calc(100% - 18px);
+    --border-radius: 14px;
+  }
+
+  .admin-form-modal {
+    width: min(100% - 22px, 640px);
+    padding: 22px 0;
+  }
+
+  .form-modal-header,
+  .selected-user-banner.modern {
+    align-items: flex-start;
+  }
+
+  .selected-user-banner.modern {
+    flex-wrap: wrap;
+  }
+
+  .modern-actions,
+  .confirmation-actions {
+    flex-direction: column-reverse;
+  }
+
+  .secondary-modal-action,
+  .primary-modal-action {
+    width: 100%;
+  }
 }
 
 @media (max-width: 560px) {
+  .access-content {
+    --background: #f6f9fe;
+  }
+
+  .access-sidebar {
+    padding: 16px;
+    border-radius: 0 0 18px 18px;
+  }
+
+  .access-brand strong {
+    font-size: 20px;
+  }
+
   .access-nav {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .access-nav a,
+  .access-nav button {
+    min-height: 44px;
+    padding: 0 10px;
+    font-size: 13px;
+  }
+
+  .access-nav img {
+    width: 19px;
+    height: 19px;
   }
 
   .top-user section,
-  .access-topbar h1 {
+  .access-topbar h1,
+  .global-search kbd,
+  .access-hero p,
+  .access-hero::after {
     display: none;
+  }
+
+  .access-topbar {
+    gap: 12px;
+  }
+
+  .menu-button {
+    width: 34px;
+  }
+
+  .top-user > div,
+  .notification-button {
+    width: 38px;
+    height: 38px;
+  }
+
+  .access-page {
+    width: calc(100% - 20px);
+    margin-top: 14px;
   }
 
   .access-workspace,
   .access-hero,
   .access-metrics article {
-    padding: 20px;
+    padding: 18px;
+  }
+
+  .access-hero {
+    min-height: auto;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .access-hero h2 {
+    margin-top: 12px;
+    font-size: 26px;
+  }
+
+  .primary-action {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .access-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .access-metrics article {
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+  }
+
+  .access-metrics strong {
+    font-size: 27px;
+  }
+
+  .access-workspace {
+    margin-top: 14px;
+  }
+
+  .access-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .access-tabs button {
+    padding: 0 6px;
+    font-size: 13px;
+  }
+
+  .status-filter {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+
+  .toolbar-row .ghost-action,
+  .audit-filters .ghost-action {
+    width: 100%;
+  }
+
+  .access-table {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+  }
+
+  .access-table table,
+  .access-table thead,
+  .access-table tbody,
+  .access-table tr,
+  .access-table th,
+  .access-table td {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .access-table thead {
+    display: none;
+  }
+
+  .access-table tr {
+    padding: 14px;
+    margin-bottom: 12px;
+    border: 1px solid #dfe7f2;
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: 0 10px 26px rgba(15, 23, 42, 0.05);
+  }
+
+  .access-table td {
+    display: grid;
+    grid-template-columns: 110px minmax(0, 1fr);
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #edf2f7;
+    font-size: 13px;
+  }
+
+  .access-table td:last-child {
+    border-bottom: 0;
+  }
+
+  .access-table td::before {
+    content: attr(data-label);
+    color: #64748b;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+  }
+
+  .action-menu,
+  .action-menu summary {
+    width: 100%;
+  }
+
+  .action-menu summary {
+    justify-content: center;
+  }
+
+  .action-menu div {
+    position: static;
+    margin-top: 8px;
+    box-shadow: none;
+  }
+
+  .table-footer {
+    gap: 12px;
+  }
+
+  .table-footer label,
+  .audit-filters label {
+    width: 100%;
+  }
+
+  .audit-filters input {
+    width: 100%;
+  }
+
+  .role-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-modal-header {
+    gap: 14px;
+  }
+
+  .modal-icon,
+  .confirmation-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .form-modal-header h2,
+  .confirmation-card h2 {
+    font-size: 21px;
+  }
+
+  .modal-close-button {
+    width: 40px;
+    height: 40px;
+  }
+
+  .selected-avatar {
+    width: 56px;
+    height: 56px;
+    font-size: 22px;
+  }
+
+  .input-shell,
+  .readonly-shell,
+  .document-select {
+    min-height: 50px;
+  }
+
+  .document-select {
+    flex-direction: column;
+  }
+
+  .document-select button {
+    border-right: 0;
+    border-bottom: 1px solid #d2dcea;
+  }
+
+  .document-select button:last-child {
+    border-bottom: 0;
+  }
+
+  .confirmation-overlay {
+    padding: 14px;
+  }
+
+  .confirmation-card {
+    padding: 30px 20px 22px;
   }
 }
