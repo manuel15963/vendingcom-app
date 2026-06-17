@@ -1,225 +1,338 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Administracion</ion-title>
-    <ion-buttons slot="end">
-      <ion-button routerLink="/dashboard">Panel</ion-button>
-    </ion-buttons>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="access-content" fullscreen>
+  <div class="access-layout">
+    <aside class="access-sidebar">
+      <a class="access-brand" routerLink="/dashboard" aria-label="VendingCom">
+        <img src="assets/dashboard/icons/dashboard.svg" alt="">
+        <strong>Vending<span>Com</span></strong>
+      </a>
 
-<ion-content class="admin-content">
-  <section class="admin-shell">
-    <div class="admin-hero">
-      <div>
-        <span class="eyebrow">Auth Service</span>
-        <h1>Administracion de acceso</h1>
-        <p>Gestiona usuarios, consulta roles y revisa la auditoria del modulo de autenticacion.</p>
-      </div>
+      <nav class="access-nav" aria-label="Navegacion de administracion">
+        <span>Panel</span>
+        <a routerLink="/dashboard">
+          <img src="assets/dashboard/icons/dashboard.svg" alt="">
+          Panel principal
+        </a>
 
-      @if (canManageUsers) {
-        <ion-button class="hero-action" (click)="openCreateUserModal()">
-          Nuevo usuario
-        </ion-button>
-      }
-    </div>
+        <span>Administracion</span>
+        <button type="button" [class.active]="activeTab === 'users'" (click)="setActiveTab('users')">
+          <img src="assets/dashboard/icons/users.svg" alt="">
+          Usuarios
+        </button>
+        <button type="button" [class.active]="activeTab === 'roles'" (click)="setActiveTab('roles')">
+          <img src="assets/dashboard/icons/roles.svg" alt="">
+          Roles
+        </button>
+        <button type="button" [class.active]="activeTab === 'audit'" (click)="setActiveTab('audit')">
+          <img src="assets/dashboard/icons/audit.svg" alt="">
+          Auditoria
+        </button>
 
-    <div class="metric-grid">
-      <article class="metric-card">
-        <span>Usuarios</span>
-        <strong>{{ users.length }}</strong>
-      </article>
-      <article class="metric-card">
-        <span>Activos</span>
-        <strong>{{ activeUsersCount }}</strong>
-      </article>
-      <article class="metric-card">
-        <span>Bloqueados</span>
-        <strong>{{ lockedUsersCount }}</strong>
-      </article>
-      <article class="metric-card">
-        <span>Roles</span>
-        <strong>{{ roles.length }}</strong>
-      </article>
-    </div>
+        <span>Cuenta</span>
+        <a routerLink="/profile">
+          <img src="assets/dashboard/icons/profile.svg" alt="">
+          Mi perfil
+        </a>
+        <a routerLink="/password/change">
+          <img src="assets/dashboard/icons/password.svg" alt="">
+          Cambiar contrasena
+        </a>
+      </nav>
 
-    <div class="workspace">
-      <div class="tab-list">
-        <button type="button" [class.active]="activeTab === 'users'" (click)="setActiveTab('users')">Usuarios</button>
-        <button type="button" [class.active]="activeTab === 'roles'" (click)="setActiveTab('roles')">Roles</button>
-        <button type="button" [class.active]="activeTab === 'audit'" (click)="setActiveTab('audit')">Auditoria</button>
-      </div>
+      <section class="security-card">
+        <strong>Seguridad del sistema</strong>
+        <p>Monitorea y protege todos los accesos en tiempo real.</p>
+        <button type="button" (click)="setActiveTab('audit')">Ver auditoria</button>
+      </section>
 
-      @if (errorMessage) {
-        <ion-text color="danger">
-          <p class="feedback">{{ errorMessage }}</p>
-        </ion-text>
-      }
+      <button class="access-logout" type="button" (click)="logout()">
+        <img src="assets/dashboard/icons/logout.svg" alt="">
+        Cerrar sesion
+      </button>
+    </aside>
 
-      @if (activeTab === 'users') {
-        <section class="panel-section">
-          <div class="section-heading">
-            <div>
-              <h2>Usuarios</h2>
-              <p>Alta, edicion y control de estado de cuentas.</p>
-            </div>
-            <div class="toolbar-row">
-              <div class="status-filter">
-                <button type="button" [class.active]="userStatusFilter === undefined" (click)="setUserStatusFilter(undefined)">Todos</button>
-                <button type="button" [class.active]="userStatusFilter === 1" (click)="setUserStatusFilter(1)">Activos</button>
-                <button type="button" [class.active]="userStatusFilter === 2" (click)="setUserStatusFilter(2)">Bloqueados</button>
-                <button type="button" [class.active]="userStatusFilter === 0" (click)="setUserStatusFilter(0)">Inactivos</button>
-              </div>
-              <ion-button fill="outline" (click)="loadUsers()">Actualizar</ion-button>
-              <ion-button fill="clear" (click)="clearUserFilters()">Limpiar</ion-button>
-            </div>
+    <main class="access-main">
+      <header class="access-topbar">
+        <button class="menu-button" type="button" aria-label="Menu">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+
+        <h1>Administracion</h1>
+
+        <label class="global-search">
+          <img src="assets/profile/icons/profile-user.svg" alt="">
+          <input type="search" placeholder="Buscar usuarios, roles, permisos...">
+          <kbd>⌘ K</kbd>
+        </label>
+
+        <button class="notification-button" type="button" aria-label="Notificaciones">
+          <img src="assets/dashboard/icons/notification.svg" alt="">
+          <span>3</span>
+        </button>
+
+        <div class="top-user">
+          <div>{{ userInitials }}</div>
+          <section>
+            <strong>{{ displayName }}</strong>
+            <span>{{ displayRole }}</span>
+          </section>
+        </div>
+      </header>
+
+      <section class="access-page">
+        <section class="access-hero">
+          <div>
+            <span>Auth service</span>
+            <h2>Administracion de acceso</h2>
+            <p>Gestiona usuarios, consulta roles y revisa la auditoria del modulo de autenticacion.</p>
           </div>
 
-          @if (loadingUsers) {
-            <div class="loading-box"><ion-spinner name="crescent"></ion-spinner></div>
-          } @else {
-            <div class="data-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Usuario</th>
-                    <th>Nombre</th>
-                    <th>Documento</th>
-                    <th>Estado</th>
-                    <th>Ultimo login</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (user of users; track user.userId) {
-                    <tr>
-                      <td>
-                        <strong>{{ user.username }}</strong>
-                        <span>{{ user.email }}</span>
-                      </td>
-                      <td>{{ user.fullName }}</td>
-                      <td>{{ user.documentType || '-' }} {{ user.documentNumber || '' }}</td>
-                      <td>
-                        <ion-badge [color]="getStatusColor(user.userStatus)">
-                          {{ getUserStatusLabel(user.userStatus) }}
-                        </ion-badge>
-                      </td>
-                      <td>{{ user.lastLoginAt ? (user.lastLoginAt | date:'short') : '-' }}</td>
-                      <td class="actions">
-                        @if (canManageUsers) {
-                          <ion-button size="small" (click)="openEditUserModal(user)">Editar</ion-button>
-                          <ion-button size="small" fill="outline" color="success" (click)="activateUser(user.userId)">Activar</ion-button>
-                          <ion-button size="small" fill="outline" color="warning" (click)="lockUser(user.userId)">Bloquear</ion-button>
-                          <ion-button size="small" fill="outline" color="danger" (click)="deactivateUser(user.userId)">Desactivar</ion-button>
-                        } @else {
-                          <span>Solo lectura</span>
-                        }
-                      </td>
-                    </tr>
-                  } @empty {
-                    <tr>
-                      <td colspan="6" class="empty-state">No hay usuarios para mostrar.</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
-            </div>
+          @if (canManageUsers) {
+            <button class="primary-action" type="button" (click)="openCreateUserModal()">
+              <span>+</span>
+              Nuevo usuario
+            </button>
           }
         </section>
-      }
 
-      @if (activeTab === 'roles') {
-        <section class="panel-section">
-          <div class="section-heading">
-            <div>
-              <h2>Roles</h2>
-              <p>Roles disponibles para asignacion y permisos.</p>
-            </div>
+        <section class="access-metrics" aria-label="Resumen de administracion">
+          <article>
+            <span>Usuarios totales</span>
+            <strong>{{ users.length }}</strong>
+            <small>100% del sistema</small>
+            <i class="blue"></i>
+          </article>
+          <article>
+            <span>Usuarios activos</span>
+            <strong>{{ activeUsersCount }}</strong>
+            <small>{{ activeUsersPercent }}% del sistema</small>
+            <i class="green"></i>
+          </article>
+          <article>
+            <span>Usuarios bloqueados</span>
+            <strong>{{ lockedUsersCount }}</strong>
+            <small>{{ lockedUsersPercent }}% del sistema</small>
+            <i class="red"></i>
+          </article>
+          <article>
+            <span>Roles registrados</span>
+            <strong>{{ roles.length }}</strong>
+            <small>En el sistema</small>
+            <i class="purple"></i>
+          </article>
+        </section>
+
+        <section class="access-workspace">
+          <div class="access-tabs" role="tablist" aria-label="Secciones administrativas">
+            <button type="button" [class.active]="activeTab === 'users'" (click)="setActiveTab('users')">Usuarios</button>
+            <button type="button" [class.active]="activeTab === 'roles'" (click)="setActiveTab('roles')">Roles</button>
+            <button type="button" [class.active]="activeTab === 'audit'" (click)="setActiveTab('audit')">Auditoria</button>
           </div>
 
-          @if (loadingRoles) {
-            <div class="loading-box"><ion-spinner name="crescent"></ion-spinner></div>
-          } @else {
-            <div class="role-grid">
-              @for (role of roles; track role.roleId) {
-                <article class="role-card">
-                  <div>
-                    <h2>{{ role.roleName }}</h2>
-                    <p>{{ role.roleCode }}</p>
+          @if (errorMessage) {
+            <ion-text color="danger">
+              <p class="feedback">{{ errorMessage }}</p>
+            </ion-text>
+          }
+
+          @if (activeTab === 'users') {
+            <section class="panel-section">
+              <div class="section-heading">
+                <div>
+                  <h2>Usuarios</h2>
+                  <p>Alta, edicion y control de estado de cuentas.</p>
+                </div>
+                <div class="toolbar-row">
+                  <div class="status-filter">
+                    <button type="button" [class.active]="userStatusFilter === undefined" (click)="setUserStatusFilter(undefined)">Todos</button>
+                    <button type="button" [class.active]="userStatusFilter === 1" (click)="setUserStatusFilter(1)">Activos</button>
+                    <button type="button" [class.active]="userStatusFilter === 2" (click)="setUserStatusFilter(2)">Bloqueados</button>
+                    <button type="button" [class.active]="userStatusFilter === 0" (click)="setUserStatusFilter(0)">Inactivos</button>
                   </div>
-                  <ion-badge [color]="role.roleStatus === 1 ? 'success' : 'medium'">
-                    {{ role.roleStatus === 1 ? 'Activo' : 'Inactivo' }}
-                  </ion-badge>
-                  <p>{{ role.roleDescription || 'Sin descripcion.' }}</p>
-                </article>
+                  <button class="ghost-action" type="button" (click)="loadUsers()">Actualizar</button>
+                  <button class="ghost-action" type="button" (click)="clearUserFilters()">Limpiar</button>
+                </div>
+              </div>
+
+              @if (loadingUsers) {
+                <div class="loading-box"><ion-spinner name="crescent"></ion-spinner></div>
+              } @else {
+                <div class="access-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Usuario</th>
+                        <th>Nombre</th>
+                        <th>Documento</th>
+                        <th>Estado</th>
+                        <th>Ultimo login</th>
+                        <th>Acciones</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (user of users; track user.userId) {
+                        <tr>
+                          <td>
+                            <strong>{{ user.username }}</strong>
+                            <span>{{ user.email }}</span>
+                          </td>
+                          <td>{{ user.fullName }}</td>
+                          <td>{{ user.documentType || '-' }} {{ user.documentNumber || '' }}</td>
+                          <td>
+                            <span class="status-pill" [ngClass]="getStatusClass(user.userStatus)">
+                              {{ getUserStatusLabel(user.userStatus) }}
+                            </span>
+                          </td>
+                          <td>{{ user.lastLoginAt ? (user.lastLoginAt | date:'short') : '-' }}</td>
+                          <td>
+                            @if (canManageUsers) {
+                              <details class="action-menu">
+                                <summary>Acciones</summary>
+                                <div>
+                                  <button type="button" (click)="$event.stopPropagation(); openEditUserModal(user)">Editar</button>
+                                  @if (user.userStatus !== 1) {
+                                    <button type="button" (click)="$event.stopPropagation(); activateUser(user.userId)">Activar</button>
+                                  }
+                                  @if (user.userStatus === 1) {
+                                    <button type="button" (click)="$event.stopPropagation(); lockUser(user.userId)">Bloquear</button>
+                                  }
+                                  @if (user.userStatus !== 0) {
+                                    <button type="button" class="danger" (click)="$event.stopPropagation(); deactivateUser(user.userId)">Eliminar</button>
+                                  }
+                                </div>
+                              </details>
+                            } @else {
+                              <span>Solo lectura</span>
+                            }
+                          </td>
+                        </tr>
+                      } @empty {
+                        <tr>
+                          <td colspan="6" class="empty-state">No hay usuarios para mostrar.</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+
+                <footer class="table-footer">
+                  <span>Mostrando {{ users.length }} usuario{{ users.length === 1 ? '' : 's' }}</span>
+                  <div>
+                    <button type="button" aria-label="Anterior">‹</button>
+                    <strong>1</strong>
+                    <button type="button" aria-label="Siguiente">›</button>
+                  </div>
+                  <label>
+                    Registros por pagina:
+                    <select aria-label="Registros por pagina">
+                      <option>10</option>
+                      <option>25</option>
+                      <option>50</option>
+                    </select>
+                  </label>
+                </footer>
               }
-            </div>
+            </section>
           }
-        </section>
-      }
 
-      @if (activeTab === 'audit') {
-        <section class="panel-section">
-          <div class="section-heading">
-            <div>
-              <h2>Auditoria</h2>
-              <p>Eventos de seguridad, accesos y cambios administrativos.</p>
-            </div>
-            <div class="toolbar-row">
-              <ion-item class="select-field">
-                <ion-label position="floating">Usuario afectado</ion-label>
-                <ion-input [(ngModel)]="auditUserFilter" type="number"></ion-input>
-              </ion-item>
+          @if (activeTab === 'roles') {
+            <section class="panel-section">
+              <div class="section-heading">
+                <div>
+                  <h2>Roles</h2>
+                  <p>Roles disponibles para asignacion y permisos.</p>
+                </div>
+                <button class="ghost-action" type="button" (click)="loadRoles()">Actualizar</button>
+              </div>
 
-              <ion-item class="select-field">
-                <ion-label position="floating">Accion</ion-label>
-                <ion-input [(ngModel)]="auditActionFilter" type="text"></ion-input>
-              </ion-item>
-
-              <ion-button fill="outline" (click)="loadAuditLogs()">Buscar</ion-button>
-              <ion-button fill="clear" (click)="clearAuditFilters()">Limpiar</ion-button>
-            </div>
-          </div>
-
-          @if (loadingAuditLogs) {
-            <div class="loading-box"><ion-spinner name="crescent"></ion-spinner></div>
-          } @else {
-            <div class="data-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Accion</th>
-                    <th>Tabla</th>
-                    <th>Usuario afectado</th>
-                    <th>Ejecutado por</th>
-                    <th>Fecha</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (auditLog of auditLogs; track auditLog.auditLogId) {
-                    <tr>
-                      <td><strong>{{ auditLog.actionType }}</strong></td>
-                      <td>{{ auditLog.affectedTableName || '-' }}</td>
-                      <td>{{ auditLog.affectedUserId || '-' }}</td>
-                      <td>{{ auditLog.executedByUserId || '-' }}</td>
-                      <td>{{ auditLog.executedAt | date:'short' }}</td>
-                      <td class="actions">
-                        <ion-button size="small" fill="outline" (click)="openAuditDetail(auditLog)">Ver</ion-button>
-                      </td>
-                    </tr>
+              @if (loadingRoles) {
+                <div class="loading-box"><ion-spinner name="crescent"></ion-spinner></div>
+              } @else {
+                <div class="role-grid">
+                  @for (role of roles; track role.roleId) {
+                    <article class="role-card">
+                      <div>
+                        <img src="assets/dashboard/icons/roles.svg" alt="">
+                        <span>{{ role.roleCode }}</span>
+                      </div>
+                      <h3>{{ role.roleName }}</h3>
+                      <p>{{ role.roleDescription || 'Sin descripcion registrada.' }}</p>
+                      <small [class.inactive]="role.roleStatus !== 1">{{ role.roleStatus === 1 ? 'Activo' : 'Inactivo' }}</small>
+                    </article>
                   } @empty {
-                    <tr>
-                      <td colspan="6" class="empty-state">No hay eventos para mostrar.</td>
-                    </tr>
+                    <div class="empty-state">No hay roles para mostrar.</div>
                   }
-                </tbody>
-              </table>
-            </div>
+                </div>
+              }
+            </section>
+          }
+
+          @if (activeTab === 'audit') {
+            <section class="panel-section">
+              <div class="section-heading">
+                <div>
+                  <h2>Auditoria</h2>
+                  <p>Eventos de seguridad, accesos y cambios administrativos.</p>
+                </div>
+                <div class="audit-filters">
+                  <label>
+                    Usuario afectado
+                    <input [(ngModel)]="auditUserFilter" type="number" placeholder="ID usuario">
+                  </label>
+                  <label>
+                    Accion
+                    <input [(ngModel)]="auditActionFilter" type="text" placeholder="LOGIN_SUCCESS">
+                  </label>
+                  <button class="ghost-action" type="button" (click)="loadAuditLogs()">Buscar</button>
+                  <button class="ghost-action" type="button" (click)="clearAuditFilters()">Limpiar</button>
+                </div>
+              </div>
+
+              @if (loadingAuditLogs) {
+                <div class="loading-box"><ion-spinner name="crescent"></ion-spinner></div>
+              } @else {
+                <div class="access-table">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Accion</th>
+                        <th>Tabla</th>
+                        <th>Usuario afectado</th>
+                        <th>Ejecutado por</th>
+                        <th>Fecha</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (auditLog of auditLogs; track auditLog.auditLogId) {
+                        <tr>
+                          <td><strong>{{ auditLog.actionType }}</strong></td>
+                          <td>{{ auditLog.affectedTableName || '-' }}</td>
+                          <td>{{ auditLog.affectedUserId || '-' }}</td>
+                          <td>{{ auditLog.executedByUserId || '-' }}</td>
+                          <td>{{ auditLog.executedAt | date:'short' }}</td>
+                          <td>
+                            <button class="ghost-action compact" type="button" (click)="openAuditDetail(auditLog)">Ver</button>
+                          </td>
+                        </tr>
+                      } @empty {
+                        <tr>
+                          <td colspan="6" class="empty-state">No hay eventos para mostrar.</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </section>
           }
         </section>
-      }
-    </div>
-  </section>
+
+        <footer class="access-footer">© 2026 VendingCom. Todos los derechos reservados.</footer>
+      </section>
+    </main>
+  </div>
 
   <ion-modal
     class="entity-modal"
@@ -227,187 +340,254 @@
     [isOpen]="userFormOpen"
     (didDismiss)="closeUserModal()">
     <ng-template>
-      <ion-header>
-        <ion-toolbar>
-          <ion-title>{{ userModalTitle }}</ion-title>
-          <ion-buttons slot="end">
-            <ion-button (click)="closeUserModal()">Cerrar</ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-      </ion-header>
-
       <ion-content class="modal-content">
-        <div class="modal-intro">
-          <span class="mode-pill">{{ userFormMode === 'create' ? 'Alta de usuario' : 'Edicion de usuario' }}</span>
-          <h2>{{ userModalTitle }}</h2>
-          <p>{{ userModalDescription }}</p>
-        </div>
-
-        @if (userFormMode === 'edit') {
-          <div class="selected-user-banner">
-            <div>
-              <strong>{{ userForm.fullName }}</strong>
-              <span>{{ userForm.email }}</span>
-            </div>
-            <ion-badge color="primary">ID {{ userForm.userId }}</ion-badge>
-          </div>
-        }
-
-        @if (formErrorMessage) {
-          <ion-text color="danger">
-            <p class="form-feedback">{{ formErrorMessage }}</p>
-          </ion-text>
-        }
-
-        <div class="form-grid">
-          <div class="field-block">
-            <span>Usuario *</span>
-            <ion-item>
-              <ion-input
-                [(ngModel)]="userForm.username"
-                placeholder="admin.operaciones"
-                (ionBlur)="markUserFieldAsTouched('username')"
-                (ionInput)="markUserFieldAsTouched('username')">
-              </ion-input>
-            </ion-item>
-            @if (shouldShowUserFieldError('username')) {
-              <small>{{ getUserFieldError('username') }}</small>
-            }
-          </div>
-
-          <div class="field-block">
-            <span>Correo *</span>
-            <ion-item>
-              <ion-input
-                [(ngModel)]="userForm.email"
-                placeholder="usuario@empresa.com"
-                type="email"
-                (ionBlur)="markUserFieldAsTouched('email')"
-                (ionInput)="markUserFieldAsTouched('email')">
-              </ion-input>
-            </ion-item>
-            @if (shouldShowUserFieldError('email')) {
-              <small>{{ getUserFieldError('email') }}</small>
-            }
-          </div>
-
-          @if (userFormMode === 'create') {
-            <div class="field-block">
-              <span>Contrasena *</span>
-              <ion-item>
-                <ion-input
-                  [(ngModel)]="userForm.password"
-                  placeholder="Minimo 6 caracteres"
-                  type="password"
-                  (ionBlur)="markUserFieldAsTouched('password')"
-                  (ionInput)="markUserFieldAsTouched('password')">
-                </ion-input>
-              </ion-item>
-              @if (shouldShowUserFieldError('password')) {
-                <small>{{ getUserFieldError('password') }}</small>
-              }
+        <section class="admin-form-modal">
+          <header class="form-modal-header">
+            <div class="modal-title-block">
+              <span class="modal-icon">
+                <img [src]="userModalIcon" alt="">
+              </span>
+              <div>
+                <h2>{{ userModalTitle }}</h2>
+                <p>{{ userModalDescription }}</p>
+              </div>
             </div>
 
-            <div class="field-block">
-              <span>Rol inicial *</span>
-              @if (getRoleOptions().length) {
-                <div class="choice-grid">
-                  @for (role of getRoleOptions(); track role.roleId) {
-                    <button
-                      type="button"
-                      class="choice-card"
-                      [class.active]="userForm.roleCode === role.roleCode"
-                      (click)="selectRole(role.roleCode)">
-                      <strong>{{ role.roleName }}</strong>
-                      <span>{{ role.roleCode }}</span>
-                    </button>
-                  }
-                </div>
-              } @else {
-                <ion-item>
-                  <ion-input
-                    [(ngModel)]="userForm.roleCode"
-                    placeholder="ADMIN, SUPERVISOR u OPERATOR"
-                    (ionBlur)="markUserFieldAsTouched('roleCode')"
-                    (ionInput)="markUserFieldAsTouched('roleCode')">
-                  </ion-input>
-                </ion-item>
-              }
-              @if (shouldShowUserFieldError('roleCode')) {
-                <small>{{ getUserFieldError('roleCode') }}</small>
-              }
+            <button class="modal-close-button" type="button" aria-label="Cerrar modal" (click)="closeUserModal()">×</button>
+          </header>
+
+          @if (userFormMode === 'edit') {
+            <div class="selected-user-banner modern">
+              <div class="selected-avatar">{{ userFormInitials }}</div>
+              <section>
+                <strong>{{ userForm.fullName }}</strong>
+                <span>{{ userForm.email }}</span>
+              </section>
+              <small class="status-pill" [ngClass]="editingStatusClass">{{ editingStatusLabel }}</small>
             </div>
           }
 
-          <div class="field-block wide-field">
-            <span>Nombre completo *</span>
-            <ion-item>
-              <ion-input
-                [(ngModel)]="userForm.fullName"
-                placeholder="Nombre y apellidos"
-                (ionBlur)="markUserFieldAsTouched('fullName')"
-                (ionInput)="markUserFieldAsTouched('fullName')">
-              </ion-input>
-            </ion-item>
-            @if (shouldShowUserFieldError('fullName')) {
-              <small>{{ getUserFieldError('fullName') }}</small>
+          @if (formErrorMessage) {
+            <ion-text color="danger">
+              <p class="form-feedback">{{ formErrorMessage }}</p>
+            </ion-text>
+          }
+
+          <div class="form-section-title">
+            <span>Datos de acceso</span>
+            <i></i>
+          </div>
+
+          <div class="form-grid access-fields">
+            <label class="field-block">
+              <span>Usuario *</span>
+              <div class="input-shell">
+                <img src="assets/profile/icons/profile-user.svg" alt="">
+                <ion-input
+                  [(ngModel)]="userForm.username"
+                  placeholder="Ej. admin.operaciones"
+                  (ionBlur)="markUserFieldAsTouched('username')"
+                  (ionInput)="markUserFieldAsTouched('username')">
+                </ion-input>
+              </div>
+              @if (shouldShowUserFieldError('username')) {
+                <small>{{ getUserFieldError('username') }}</small>
+              }
+            </label>
+
+            <label class="field-block">
+              <span>Correo electronico *</span>
+              <div class="input-shell">
+                <img src="assets/profile/icons/email.svg" alt="">
+                <ion-input
+                  [(ngModel)]="userForm.email"
+                  placeholder="ejemplo@empresa.com"
+                  type="email"
+                  (ionBlur)="markUserFieldAsTouched('email')"
+                  (ionInput)="markUserFieldAsTouched('email')">
+                </ion-input>
+              </div>
+              @if (shouldShowUserFieldError('email')) {
+                <small>{{ getUserFieldError('email') }}</small>
+              }
+            </label>
+
+            @if (userFormMode === 'create') {
+              <label class="field-block">
+                <span>Contrasena *</span>
+                <div class="input-shell">
+                  <img src="assets/profile/icons/lock.svg" alt="">
+                  <ion-input
+                    [(ngModel)]="userForm.password"
+                    placeholder="Minimo 6 caracteres"
+                    type="password"
+                    (ionBlur)="markUserFieldAsTouched('password')"
+                    (ionInput)="markUserFieldAsTouched('password')">
+                  </ion-input>
+                </div>
+                @if (shouldShowUserFieldError('password')) {
+                  <small>{{ getUserFieldError('password') }}</small>
+                }
+              </label>
+
+              <div class="field-block">
+                <span>Rol inicial *</span>
+                @if (getRoleOptions().length) {
+                  <div class="role-choice-stack">
+                    @for (role of getRoleOptions(); track role.roleId) {
+                      <button
+                        type="button"
+                        class="role-choice-card"
+                        [class.active]="userForm.roleCode === role.roleCode"
+                        (click)="selectRole(role.roleCode)">
+                        <img src="assets/dashboard/icons/roles.svg" alt="">
+                        <strong>{{ getRoleDisplayName(role) }}</strong>
+                      </button>
+                    }
+                  </div>
+                } @else {
+                  <div class="input-shell">
+                    <img src="assets/dashboard/icons/roles.svg" alt="">
+                    <ion-input
+                      [(ngModel)]="userForm.roleCode"
+                      placeholder="ADMIN, SUPERVISOR u OPERATOR"
+                      (ionBlur)="markUserFieldAsTouched('roleCode')"
+                      (ionInput)="markUserFieldAsTouched('roleCode')">
+                    </ion-input>
+                  </div>
+                }
+                @if (shouldShowUserFieldError('roleCode')) {
+                  <small>{{ getUserFieldError('roleCode') }}</small>
+                }
+              </div>
             }
           </div>
 
-          <div class="field-block">
-            <span>Telefono</span>
-            <ion-item>
-              <ion-input
-                [(ngModel)]="userForm.phoneNumber"
-                maxlength="9"
-                placeholder="999999999"
-                (ionBlur)="markUserFieldAsTouched('phoneNumber')"
-                (ionInput)="markUserFieldAsTouched('phoneNumber')">
-              </ion-input>
-            </ion-item>
-            @if (shouldShowUserFieldError('phoneNumber')) {
-              <small>{{ getUserFieldError('phoneNumber') }}</small>
-            }
+          <div class="form-section-title">
+            <span>Informacion personal</span>
+            <i></i>
           </div>
 
-          <div class="field-block">
-            <span>Tipo de documento</span>
-            <div class="choice-row">
-              <button type="button" [class.active]="userForm.documentType === ''" (click)="selectDocumentType('')">Sin documento</button>
-              <button type="button" [class.active]="userForm.documentType === 'DNI'" (click)="selectDocumentType('DNI')">DNI</button>
+          <div class="form-grid personal-fields">
+            <label class="field-block wide-field">
+              <span>Nombre completo *</span>
+              <div class="input-shell">
+                <img src="assets/profile/icons/profile-user.svg" alt="">
+                <ion-input
+                  [(ngModel)]="userForm.fullName"
+                  placeholder="Nombres y apellidos"
+                  (ionBlur)="markUserFieldAsTouched('fullName')"
+                  (ionInput)="markUserFieldAsTouched('fullName')">
+                </ion-input>
+              </div>
+              @if (shouldShowUserFieldError('fullName')) {
+                <small>{{ getUserFieldError('fullName') }}</small>
+              }
+            </label>
+
+            <label class="field-block">
+              <span>Telefono</span>
+              <div class="input-shell">
+                <img src="assets/profile/icons/phone.svg" alt="">
+                <ion-input
+                  [(ngModel)]="userForm.phoneNumber"
+                  maxlength="9"
+                  placeholder="999 999 999"
+                  (ionBlur)="markUserFieldAsTouched('phoneNumber')"
+                  (ionInput)="markUserFieldAsTouched('phoneNumber')">
+                </ion-input>
+              </div>
+              @if (shouldShowUserFieldError('phoneNumber')) {
+                <small>{{ getUserFieldError('phoneNumber') }}</small>
+              }
+            </label>
+
+            <div class="field-block">
+              <span>Tipo de documento</span>
+              <div class="document-select">
+                <button type="button" [class.active]="userForm.documentType === ''" (click)="selectDocumentType('')">Sin documento</button>
+                <button type="button" [class.active]="userForm.documentType === 'DNI'" (click)="selectDocumentType('DNI')">DNI</button>
+              </div>
             </div>
+
+            <label class="field-block wide-field">
+              <span>Numero de documento</span>
+              <div class="input-shell">
+                <img src="assets/profile/icons/id-card.svg" alt="">
+                <ion-input
+                  [(ngModel)]="userForm.documentNumber"
+                  maxlength="8"
+                  placeholder="Ingrese el numero de documento"
+                  (ionBlur)="markUserFieldAsTouched('documentNumber')"
+                  (ionInput)="markUserFieldAsTouched('documentNumber')">
+                </ion-input>
+              </div>
+              @if (shouldShowUserFieldError('documentNumber')) {
+                <small>{{ getUserFieldError('documentNumber') }}</small>
+              }
+            </label>
           </div>
 
-          <div class="field-block">
-            <span>Numero documento</span>
-            <ion-item>
-              <ion-input
-                [(ngModel)]="userForm.documentNumber"
-                maxlength="8"
-                placeholder="00000000"
-                (ionBlur)="markUserFieldAsTouched('documentNumber')"
-                (ionInput)="markUserFieldAsTouched('documentNumber')">
-              </ion-input>
-            </ion-item>
-            @if (shouldShowUserFieldError('documentNumber')) {
-              <small>{{ getUserFieldError('documentNumber') }}</small>
-            }
-          </div>
-        </div>
+          @if (userFormMode === 'edit') {
+            <div class="form-section-title">
+              <span>Acceso</span>
+              <i></i>
+            </div>
 
-        <div class="modal-actions">
-          <ion-button fill="outline" (click)="closeUserModal()">Cancelar</ion-button>
-          <ion-button [disabled]="savingUser || !isUserFormValid()" (click)="saveUser()">
-            @if (savingUser) {
-              <ion-spinner name="crescent"></ion-spinner>
-            } @else {
-              {{ userPrimaryActionLabel }}
-            }
-          </ion-button>
-        </div>
+            <div class="form-grid access-summary-grid">
+              <div class="field-block">
+                <span>Rol</span>
+                <div class="readonly-shell">
+                  <img src="assets/dashboard/icons/roles.svg" alt="">
+                  <strong>{{ displayRole }}</strong>
+                </div>
+              </div>
+
+              <div class="field-block">
+                <span>Estado</span>
+                <div class="readonly-shell">
+                  <span class="status-dot" [ngClass]="editingStatusClass"></span>
+                  <strong>{{ editingStatusLabel }}</strong>
+                </div>
+              </div>
+            </div>
+          }
+
+          <div class="modal-actions modern-actions">
+            <button class="secondary-modal-action" type="button" (click)="closeUserModal()">Cancelar</button>
+            <button class="primary-modal-action" type="button" [disabled]="savingUser || !isUserFormValid()" (click)="saveUser()">
+              @if (savingUser) {
+                <ion-spinner name="crescent"></ion-spinner>
+              } @else {
+                <span>{{ userFormMode === 'create' ? '+' : '✓' }}</span>
+                {{ userPrimaryActionLabel }}
+              }
+            </button>
+          </div>
+        </section>
       </ion-content>
     </ng-template>
   </ion-modal>
+
+  @if (confirmationModalOpen && pendingUserAction) {
+    <div class="confirmation-overlay" role="dialog" aria-modal="true" aria-labelledby="confirmation-title">
+      <section class="confirmation-card" [ngClass]="pendingUserAction.tone">
+        <button class="modal-close-button" type="button" aria-label="Cerrar confirmacion" (click)="closeConfirmationModal()">×</button>
+        <span class="confirmation-icon">
+          <img src="assets/dashboard/icons/users.svg" alt="">
+        </span>
+        <h2 id="confirmation-title">{{ pendingUserAction.title }}</h2>
+        <p>{{ pendingUserAction.message }}</p>
+
+        <div class="confirmation-actions">
+          <button class="secondary-modal-action" type="button" (click)="closeConfirmationModal()">Cancelar</button>
+          <button class="primary-modal-action" type="button" [ngClass]="pendingUserAction.tone" (click)="confirmPendingUserAction()">
+            {{ pendingUserAction.confirmLabel }}
+          </button>
+        </div>
+      </section>
+    </div>
+  }
 
   <ion-modal
     class="success-modal"
@@ -429,7 +609,7 @@
     </ng-template>
   </ion-modal>
 
-  <ion-modal [isOpen]="auditDetailOpen" (didDismiss)="closeAuditDetail()">
+  <ion-modal class="audit-modal" [isOpen]="auditDetailOpen" (didDismiss)="closeAuditDetail()">
     <ng-template>
       <ion-header>
         <ion-toolbar>

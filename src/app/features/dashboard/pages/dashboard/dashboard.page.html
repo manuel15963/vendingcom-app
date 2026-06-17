@@ -1,20 +1,215 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>VendingCom</ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content class="dashboard-content" fullscreen>
+  <div class="dashboard-shell">
+    <header class="topbar">
+      <div class="brand-lockup">
+        <img src="assets/dashboard/icons/dashboard.svg" alt="">
+        <strong>VendingCom</strong>
+      </div>
 
-<ion-content class="dashboard-content">
-  <section class="dashboard-panel">
-    <h1>Panel principal</h1>
-    <p>Sesion activa para {{ session?.fullName || session?.username || 'usuario' }}.</p>
-    <p class="muted">{{ session?.email }}</p>
+      <button class="menu-button" type="button" aria-label="Menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
 
-    <ion-button routerLink="/profile">Mi perfil</ion-button>
-    @if (canOpenAdmin) {
-      <ion-button routerLink="/admin">Administracion</ion-button>
-    }
-    <ion-button routerLink="/password/change">Cambiar contrasena</ion-button>
-    <ion-button (click)="logout()">Cerrar sesion</ion-button>
-  </section>
+      <div class="topbar-user">
+        <button class="notification-button" type="button" aria-label="Notificaciones">
+          <img src="assets/dashboard/icons/notification.svg" alt="">
+          <span>3</span>
+        </button>
+        <div class="avatar">{{ userInitials }}</div>
+        <strong>{{ displayName }}</strong>
+      </div>
+    </header>
+
+    <aside class="sidebar">
+      <nav class="side-nav" aria-label="Navegacion principal">
+        <a class="active" routerLink="/dashboard">
+          <img src="assets/dashboard/icons/dashboard.svg" alt="">
+          Panel principal
+        </a>
+
+        <span>Administracion</span>
+        <a routerLink="/admin">
+          <img src="assets/dashboard/icons/users.svg" alt="">
+          Usuarios
+        </a>
+        <a routerLink="/admin">
+          <img src="assets/dashboard/icons/roles.svg" alt="">
+          Roles
+        </a>
+        <a routerLink="/admin">
+          <img src="assets/dashboard/icons/vending.svg" alt="">
+          Maquinas
+        </a>
+        <a routerLink="/admin">
+          <img src="assets/dashboard/icons/audit.svg" alt="">
+          Auditoria
+        </a>
+
+        <span>Cuenta</span>
+        <a routerLink="/profile">
+          <img src="assets/dashboard/icons/profile.svg" alt="">
+          Mi perfil
+        </a>
+        <a routerLink="/password/change">
+          <img src="assets/dashboard/icons/password.svg" alt="">
+          Cambiar contrasena
+        </a>
+      </nav>
+
+      <button class="logout-link" type="button" (click)="logout()">
+        <img src="assets/dashboard/icons/logout.svg" alt="">
+        Cerrar sesion
+      </button>
+    </aside>
+
+    <main class="dashboard-main">
+      <section class="welcome-card">
+        <div>
+          <h1>Bienvenido, {{ session?.fullName?.split(' ')?.[0] || session?.username || 'usuario' }}</h1>
+          <p>Sesion activa para {{ displayName }}.</p>
+          <span>{{ session?.email }}</span>
+        </div>
+
+        <div class="hero-actions">
+          <a routerLink="/profile">
+            <img src="assets/dashboard/icons/profile.svg" alt="">
+            Mi perfil
+          </a>
+          @if (canOpenAdmin) {
+            <a routerLink="/admin">
+              <img src="assets/dashboard/icons/audit.svg" alt="">
+              Administracion
+            </a>
+          }
+          <a routerLink="/password/change">
+            <img src="assets/dashboard/icons/password.svg" alt="">
+            Cambiar contrasena
+          </a>
+          <button type="button" (click)="logout()">
+            <img src="assets/dashboard/icons/logout.svg" alt="">
+            Cerrar sesion
+          </button>
+        </div>
+
+        <img class="hero-illustration" src="assets/dashboard/illustrations/dashboard-hero-vending.png" alt="">
+      </section>
+
+      <section class="metric-grid" aria-label="Indicadores principales">
+        @for (metric of metrics; track metric.label) {
+          <article
+            class="metric-card"
+            [class.tone-blue]="metric.tone === 'blue'"
+            [class.tone-green]="metric.tone === 'green'"
+            [class.tone-purple]="metric.tone === 'purple'"
+            [class.tone-orange]="metric.tone === 'orange'">
+            <div class="metric-head">
+              <span>
+                <img [src]="metric.icon" alt="">
+              </span>
+              <div>
+                <p>{{ metric.label }}</p>
+                <strong>{{ metric.value }}</strong>
+                <small>{{ metric.change }}</small>
+              </div>
+            </div>
+
+            <svg class="sparkline" viewBox="0 0 160 44" aria-hidden="true">
+              <polyline
+                points="0,30 22,27 44,31 66,24 88,30 110,30 132,16 160,22"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+              </polyline>
+            </svg>
+          </article>
+        }
+      </section>
+
+      <section class="content-grid">
+        <article class="activity-card">
+          <div class="section-title">
+            <h2>Actividad reciente</h2>
+            <a routerLink="/admin">Ver todos</a>
+          </div>
+
+          <div class="activity-list">
+            @for (activity of activities; track activity.title) {
+              <div
+                class="activity-item"
+                [class.tone-blue]="activity.tone === 'blue'"
+                [class.tone-green]="activity.tone === 'green'"
+                [class.tone-purple]="activity.tone === 'purple'"
+                [class.tone-orange]="activity.tone === 'orange'"
+                [class.tone-red]="activity.tone === 'red'">
+                <span>
+                  <img [src]="activity.icon" alt="">
+                </span>
+                <div>
+                  <strong>{{ activity.title }}</strong>
+                  <p>{{ activity.detail }}</p>
+                </div>
+                <small>{{ activity.time }}</small>
+              </div>
+            }
+          </div>
+        </article>
+
+        <article class="system-card">
+          <div class="section-title">
+            <h2>Actividad del sistema</h2>
+            <button type="button">Ultimos 7 dias</button>
+          </div>
+
+          <div class="chart-wrap">
+            <svg viewBox="0 0 620 260" aria-label="Grafico de actividad del sistema">
+              <g class="grid-lines">
+                <line x1="40" y1="30" x2="590" y2="30"></line>
+                <line x1="40" y1="78" x2="590" y2="78"></line>
+                <line x1="40" y1="126" x2="590" y2="126"></line>
+                <line x1="40" y1="174" x2="590" y2="174"></line>
+                <line x1="40" y1="222" x2="590" y2="222"></line>
+              </g>
+
+              <polygon points="40,210 135,142 230,160 325,72 420,142 515,136 590,192 590,222 40,222" class="chart-area"></polygon>
+              <polyline points="40,210 135,142 230,160 325,72 420,142 515,136 590,192" class="chart-line"></polyline>
+
+              <g class="chart-dots">
+                <circle cx="40" cy="210" r="5"></circle>
+                <circle cx="135" cy="142" r="5"></circle>
+                <circle cx="230" cy="160" r="5"></circle>
+                <circle cx="325" cy="72" r="5"></circle>
+                <circle cx="420" cy="142" r="5"></circle>
+                <circle cx="515" cy="136" r="5"></circle>
+                <circle cx="590" cy="192" r="5"></circle>
+              </g>
+            </svg>
+          </div>
+
+          <div class="system-summary">
+            <div>
+              <strong>432</strong>
+              <span>Total eventos</span>
+              <small>+16% vs semana anterior</small>
+            </div>
+            <div>
+              <strong>85%</strong>
+              <span>Usuarios activos</span>
+              <small>+8% vs semana anterior</small>
+            </div>
+            <div>
+              <strong>98%</strong>
+              <span>Disponibilidad</span>
+              <small>Excelente</small>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <footer class="dashboard-footer">2026 VendingCom. Todos los derechos reservados.</footer>
+    </main>
+  </div>
 </ion-content>

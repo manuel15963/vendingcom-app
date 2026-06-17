@@ -2,17 +2,14 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
-import { AlertController } from '@ionic/angular';
+import { Router, RouterLink } from '@angular/router';
+import { Observable } from 'rxjs';
 import {
-  IonBadge,
   IonButton,
   IonButtons,
   IonContent,
   IonHeader,
   IonInput,
-  IonItem,
-  IonLabel,
   IonModal,
   IonSpinner,
   IonText,
@@ -21,7 +18,7 @@ import {
 } from '@ionic/angular/standalone';
 
 import { ToastService } from '../../../../core/feedback/toast.service';
-import { ApiErrorResponse } from '../../../../shared/models/api-response.models';
+import { ApiErrorResponse, ApiMessageResponse } from '../../../../shared/models/api-response.models';
 import { AuditLogsApiService } from '../../../audit-logs/data-access/audit-logs-api.service';
 import { AuthAuditLogResponse } from '../../../audit-logs/models/audit-log.models';
 import { AuthApiService } from '../../../auth/data-access/auth-api.service';
@@ -44,24 +41,32 @@ interface UserFormModel {
   documentType: string;
   documentNumber: string;
   roleCode: string;
+  userStatus?: number;
+}
+
+interface PendingUserAction {
+  type: 'activate' | 'lock' | 'deactivate';
+  userId: number;
+  title: string;
+  message: string;
+  confirmLabel: string;
+  tone: 'primary' | 'warning' | 'danger';
 }
 
 @Component({
   selector: 'app-admin-panel',
   templateUrl: './admin-panel.page.html',
+  styleUrls: ['./admin-panel.page.scss'],
   standalone: true,
   imports: [
     CommonModule,
     FormsModule,
     RouterLink,
-    IonBadge,
     IonButton,
     IonButtons,
     IonContent,
     IonHeader,
     IonInput,
-    IonItem,
-    IonLabel,
     IonModal,
     IonSpinner,
     IonText,
@@ -75,8 +80,8 @@ export class AdminPanelPage implements OnInit {
   private readonly usersApi = inject(UsersApiService);
   private readonly rolesApi = inject(RolesApiService);
   private readonly auditLogsApi = inject(AuditLogsApiService);
-  private readonly alertController = inject(AlertController);
   private readonly toast = inject(ToastService);
+  private readonly router = inject(Router);
 
   activeTab: AdminTab = 'users';
   users: AuthUserResponse[] = [];
@@ -98,9 +103,11 @@ export class AdminPanelPage implements OnInit {
   userFormOpen = false;
   auditDetailOpen = false;
   successModalOpen = false;
+  confirmationModalOpen = false;
   successModalTitle = '';
   successModalMessage = '';
   private pendingSuccessModal: { title: string; message: string } | null = null;
+  pendingUserAction: PendingUserAction | null = null;
   userFormMode: UserFormMode = 'create';
   userForm: UserFormModel = this.getEmptyUserForm();
   touchedUserFields: Partial<Record<UserFormField, boolean>> = {};
@@ -108,12 +115,48 @@ export class AdminPanelPage implements OnInit {
   readonly session = this.authApi.getCurrentSession();
   readonly canManageUsers = this.authApi.hasAnyRole(['ADMIN']);
 
+  get displayName(): string {
+    return this.session?.fullName || this.session?.username || 'Administrador';
+  }
+
+  get displayRole(): string {
+    const firstRole = this.session?.roles?.[0];
+    const role = typeof firstRole === 'string' ? firstRole : firstRole?.roleName || firstRole?.roleCode || 'Administrador';
+
+    return this.formatRole(role);
+  }
+
+  get userInitials(): string {
+    const words = this.displayName.trim().split(/\s+/).slice(0, 2);
+
+    return words.map((word) => word[0]?.toUpperCase() || '').join('') || 'VC';
+  }
+
+  get userFormInitials(): string {
+    const name = this.userForm.fullName || this.userForm.username || 'Usuario';
+    const words = name.trim().split(/\s+/).slice(0, 2);
+
+    return words.map((word) => word[0]?.toUpperCase() || '').join('') || 'US';
+  }
+
   get activeUsersCount(): number {
     return this.users.filter((user) => user.userStatus === 1).length;
   }
 
   get lockedUsersCount(): number {
     return this.users.filter((user) => user.userStatus === 2).length;
+  }
+
+  get inactiveUsersCount(): number {
+    return this.users.filter((user) => user.userStatus === 0).length;
+  }
+
+  get activeUsersPercent(): number {
+    return this.getPercent(this.activeUsersCount, this.users.length);
+  }
+
+  get lockedUsersPercent(): number {
+    return this.getPercent(this.lockedUsersCount, this.users.length);
   }
 
   get userModalTitle(): string {
@@ -130,6 +173,18 @@ export class AdminPanelPage implements OnInit {
 
   get userPrimaryActionLabel(): string {
     return this.userFormMode === 'create' ? 'Crear usuario' : 'Guardar cambios';
+  }
+
+  get userModalIcon(): string {
+    return this.userFormMode === 'create' ? 'assets/dashboard/icons/users.svg' : 'assets/profile/icons/edit.svg';
+  }
+
+  get editingStatusLabel(): string {
+    return this.getUserStatusLabel(this.userForm.userStatus ?? 1);
+  }
+
+  get editingStatusClass(): string {
+    return this.getStatusClass(this.userForm.userStatus ?? 1);
   }
 
   ngOnInit(): void {
@@ -227,6 +282,7 @@ export class AdminPanelPage implements OnInit {
       documentType: user.documentType || '',
       documentNumber: user.documentNumber || '',
       roleCode: '',
+      userStatus: user.userStatus,
     };
     this.formErrorMessage = '';
     this.touchedUserFields = {};
@@ -286,60 +342,36 @@ export class AdminPanelPage implements OnInit {
     });
   }
 
-  async activateUser(userId: number): Promise<void> {
-    const confirmed = await this.confirmAction(
-      'Activar usuario',
-      'El usuario podra iniciar sesion nuevamente.'
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    this.usersApi.activate(userId).subscribe({
-      next: () => {
-        void this.toast.success('Usuario activado.');
-        this.loadUsers();
-      },
-      error: (error) => this.handleLoadError(error, 'No se pudo activar el usuario.')
+  activateUser(userId: number): void {
+    this.openConfirmationModal({
+      type: 'activate',
+      userId,
+      title: 'Activar usuario',
+      message: 'Este usuario podra iniciar sesion nuevamente y recuperar el acceso al sistema.',
+      confirmLabel: 'Activar usuario',
+      tone: 'primary',
     });
   }
 
-  async lockUser(userId: number): Promise<void> {
-    const confirmed = await this.confirmAction(
-      'Bloquear usuario',
-      'El usuario no podra acceder hasta que sea activado.'
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    this.usersApi.lock(userId).subscribe({
-      next: () => {
-        void this.toast.success('Usuario bloqueado.');
-        this.loadUsers();
-      },
-      error: (error) => this.handleLoadError(error, 'No se pudo bloquear el usuario.')
+  lockUser(userId: number): void {
+    this.openConfirmationModal({
+      type: 'lock',
+      userId,
+      title: 'Bloquear usuario',
+      message: 'El usuario no podra acceder hasta que un administrador lo active nuevamente.',
+      confirmLabel: 'Bloquear usuario',
+      tone: 'warning',
     });
   }
 
-  async deactivateUser(userId: number): Promise<void> {
-    const confirmed = await this.confirmAction(
-      'Desactivar usuario',
-      'El usuario quedara inactivo de forma logica.'
-    );
-
-    if (!confirmed) {
-      return;
-    }
-
-    this.usersApi.deactivate(userId).subscribe({
-      next: () => {
-        void this.toast.success('Usuario desactivado.');
-        this.loadUsers();
-      },
-      error: (error) => this.handleLoadError(error, 'No se pudo desactivar el usuario.')
+  deactivateUser(userId: number): void {
+    this.openConfirmationModal({
+      type: 'deactivate',
+      userId,
+      title: 'Eliminar usuario',
+      message: 'Se realizara una eliminacion logica. El usuario quedara inactivo y no podra acceder al sistema.',
+      confirmLabel: 'Eliminar usuario',
+      tone: 'danger',
     });
   }
 
@@ -355,6 +387,58 @@ export class AdminPanelPage implements OnInit {
 
   closeSuccessModal(): void {
     this.successModalOpen = false;
+  }
+
+  closeConfirmationModal(): void {
+    this.confirmationModalOpen = false;
+    this.pendingUserAction = null;
+  }
+
+  confirmPendingUserAction(): void {
+    if (!this.pendingUserAction) {
+      return;
+    }
+
+    const action = this.pendingUserAction;
+    const request: Observable<AuthUserResponse | ApiMessageResponse> = action.type === 'activate'
+      ? this.usersApi.activate(action.userId)
+      : action.type === 'lock'
+        ? this.usersApi.lock(action.userId)
+        : this.usersApi.deactivate(action.userId);
+    const successTitle = action.type === 'activate'
+      ? 'Usuario activado'
+      : action.type === 'lock'
+        ? 'Usuario bloqueado'
+        : 'Usuario eliminado';
+    const successMessage = action.type === 'activate'
+      ? 'La cuenta fue activada correctamente. El usuario ya puede volver a iniciar sesion.'
+      : action.type === 'lock'
+        ? 'La cuenta fue bloqueada correctamente. El usuario no podra acceder hasta que sea activado.'
+        : 'El usuario fue eliminado de forma logica y ya no podra acceder al sistema.';
+    const errorMessage = action.type === 'activate'
+      ? 'No se pudo activar el usuario.'
+      : action.type === 'lock'
+        ? 'No se pudo bloquear el usuario.'
+        : 'No se pudo eliminar el usuario.';
+
+    request.subscribe({
+      next: () => {
+        this.closeConfirmationModal();
+        window.setTimeout(() => {
+          this.showSuccessModal(successTitle, successMessage);
+        }, 120);
+        this.loadUsers();
+      },
+      error: (error) => {
+        this.closeConfirmationModal();
+        this.handleLoadError(error, errorMessage);
+      }
+    });
+  }
+
+  logout(): void {
+    this.authApi.logout();
+    void this.router.navigateByUrl('/login');
   }
 
   getUserStatusLabel(status: number): string {
@@ -377,8 +461,22 @@ export class AdminPanelPage implements OnInit {
     return colors[status] || 'medium';
   }
 
+  getStatusClass(status: number): string {
+    const classes: Record<number, string> = {
+      0: 'inactive',
+      1: 'active',
+      2: 'locked',
+    };
+
+    return classes[status] || 'inactive';
+  }
+
   getRoleOptions(): AuthRoleResponse[] {
     return this.roles.filter((role) => role.roleStatus === 1);
+  }
+
+  getRoleDisplayName(role: AuthRoleResponse): string {
+    return this.formatRole(role.roleName || role.roleCode);
   }
 
   selectRole(roleCode: string): void {
@@ -518,6 +616,7 @@ export class AdminPanelPage implements OnInit {
       documentType: 'DNI',
       documentNumber: '',
       roleCode: '',
+      userStatus: 1,
     };
   }
 
@@ -539,6 +638,30 @@ export class AdminPanelPage implements OnInit {
     this.successModalOpen = true;
   }
 
+  private openConfirmationModal(action: PendingUserAction): void {
+    this.pendingUserAction = action;
+    this.confirmationModalOpen = true;
+  }
+
+  private getPercent(value: number, total: number): number {
+    return total ? Math.round((value / total) * 100) : 0;
+  }
+
+  private formatRole(role: string): string {
+    const roleMap: Record<string, string> = {
+      ADMIN: 'Administrador',
+      ADMINISTRADOR: 'Administrador',
+      SUPERVISOR: 'Supervisor',
+      OPERATOR: 'Operador',
+      OPERADOR: 'Operador',
+      USER: 'Usuario',
+      USUARIO: 'Usuario',
+    };
+    const normalizedRole = role.trim().toUpperCase();
+
+    return roleMap[normalizedRole] || role;
+  }
+
   private handleFormError(error: HttpErrorResponse, fallbackMessage: string): void {
     const apiError = error.error as ApiErrorResponse | undefined;
 
@@ -556,26 +679,4 @@ export class AdminPanelPage implements OnInit {
     void this.toast.error(this.errorMessage);
   }
 
-  private async confirmAction(header: string, message: string): Promise<boolean> {
-    const alert = await this.alertController.create({
-      header,
-      message,
-      buttons: [
-        {
-          text: 'Cancelar',
-          role: 'cancel',
-        },
-        {
-          text: 'Confirmar',
-          role: 'confirm',
-        },
-      ],
-    });
-
-    await alert.present();
-
-    const result = await alert.onDidDismiss();
-
-    return result.role === 'confirm';
-  }
 }
