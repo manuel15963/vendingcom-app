@@ -173,19 +173,19 @@
                     <tbody>
                       @for (user of users; track user.userId) {
                         <tr>
-                          <td>
+                          <td data-label="Usuario">
                             <strong>{{ user.username }}</strong>
                             <span>{{ user.email }}</span>
                           </td>
-                          <td>{{ user.fullName }}</td>
-                          <td>{{ user.documentType || '-' }} {{ user.documentNumber || '' }}</td>
-                          <td>
+                          <td data-label="Nombre">{{ user.fullName }}</td>
+                          <td data-label="Documento">{{ user.documentType || '-' }} {{ user.documentNumber || '' }}</td>
+                          <td data-label="Estado">
                             <span class="status-pill" [ngClass]="getStatusClass(user.userStatus)">
                               {{ getUserStatusLabel(user.userStatus) }}
                             </span>
                           </td>
-                          <td>{{ user.lastLoginAt ? (user.lastLoginAt | date:'short') : '-' }}</td>
-                          <td>
+                          <td data-label="Ultimo login">{{ user.lastLoginAt ? (user.lastLoginAt | date:'short') : '-' }}</td>
+                          <td data-label="Acciones">
                             @if (canManageUsers) {
                               <details class="action-menu">
                                 <summary>Acciones</summary>
@@ -307,12 +307,12 @@
                     <tbody>
                       @for (auditLog of auditLogs; track auditLog.auditLogId) {
                         <tr>
-                          <td><strong>{{ auditLog.actionType }}</strong></td>
-                          <td>{{ auditLog.affectedTableName || '-' }}</td>
-                          <td>{{ auditLog.affectedUserId || '-' }}</td>
-                          <td>{{ auditLog.executedByUserId || '-' }}</td>
-                          <td>{{ auditLog.executedAt | date:'short' }}</td>
-                          <td>
+                          <td data-label="Accion"><strong>{{ auditLog.actionType }}</strong></td>
+                          <td data-label="Tabla">{{ auditLog.affectedTableName || '-' }}</td>
+                          <td data-label="Usuario afectado">{{ auditLog.affectedUserId || '-' }}</td>
+                          <td data-label="Ejecutado por">{{ auditLog.executedByUserId || '-' }}</td>
+                          <td data-label="Fecha">{{ auditLog.executedAt | date:'short' }}</td>
+                          <td data-label="Detalle">
                             <button class="ghost-action compact" type="button" (click)="openAuditDetail(auditLog)">Ver</button>
                           </td>
                         </tr>
