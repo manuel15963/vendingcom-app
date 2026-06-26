@@ -32,10 +32,20 @@
         </ion-input>
       </ion-item>
 
+      @if (newPasswordError) {
+        <ion-text color="danger">
+          <p class="field-hint">{{ newPasswordError }}</p>
+        </ion-text>
+      } @else {
+        <ion-text color="medium">
+          <p class="field-hint">{{ passwordHint }}</p>
+        </ion-text>
+      }
+
       <ion-button
         expand="block"
         class="primary-button"
-        [disabled]="loading || !email || code.length !== 6 || newPassword.length < 6"
+        [disabled]="loading || !canSubmit"
         (click)="confirmRecovery()">
         @if (loading) {
           <ion-spinner name="crescent"></ion-spinner>

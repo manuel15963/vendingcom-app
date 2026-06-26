@@ -48,6 +48,10 @@ export interface ChangePasswordRequest {
   newPassword: string;
 }
 
+export interface AdminResetPasswordRequest {
+  newPassword: string;
+}
+
 export interface AuthSession {
   token: string;
   userId: number;

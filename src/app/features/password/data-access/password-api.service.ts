@@ -5,6 +5,7 @@ import { Observable } from 'rxjs';
 import { apiEndpoints } from '../../../core/config/api-endpoints';
 import { ApiMessageResponse } from '../../../shared/models/api-response.models';
 import {
+  AdminResetPasswordRequest,
   ChangePasswordRequest,
   PasswordRecoveryConfirmRequest,
   PasswordRecoveryRequest
@@ -19,6 +20,10 @@ export class PasswordApiService {
 
   changeMyPassword(request: ChangePasswordRequest): Observable<ApiMessageResponse> {
     return this.http.patch<ApiMessageResponse>(apiEndpoints.password.changeMyPassword, request);
+  }
+
+  resetUserPassword(userId: number, request: AdminResetPasswordRequest): Observable<ApiMessageResponse> {
+    return this.http.patch<ApiMessageResponse>(apiEndpoints.password.resetUserPassword(userId), request);
   }
 
   requestRecovery(request: PasswordRecoveryRequest): Observable<ApiMessageResponse> {

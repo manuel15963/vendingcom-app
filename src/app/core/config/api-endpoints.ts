@@ -10,6 +10,7 @@ export const apiEndpoints = {
   },
   password: {
     changeMyPassword: `${authPasswordBaseUrl}/me`,
+    resetUserPassword: (userId: number) => `${authPasswordBaseUrl}/users/${userId}`,
     requestRecovery: `${authPasswordBaseUrl}/recovery/request`,
     confirmRecovery: `${authPasswordBaseUrl}/recovery/confirm`,
   },
