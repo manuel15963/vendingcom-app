@@ -191,6 +191,7 @@
                                 <summary>Acciones</summary>
                                 <div>
                                   <button type="button" (click)="$event.stopPropagation(); openEditUserModal(user)">Editar</button>
+                                  <button type="button" (click)="$event.stopPropagation(); openResetPasswordModal(user)">Restablecer contrasena</button>
                                   @if (user.userStatus !== 1) {
                                     <button type="button" (click)="$event.stopPropagation(); activateUser(user.userId)">Activar</button>
                                   }
@@ -592,6 +593,47 @@
           <button class="secondary-modal-action" type="button" (click)="closeConfirmationModal()">Cancelar</button>
           <button class="primary-modal-action" type="button" [ngClass]="pendingUserAction.tone" (click)="confirmPendingUserAction()">
             {{ pendingUserAction.confirmLabel }}
+          </button>
+        </div>
+      </section>
+    </div>
+  }
+
+  @if (resetPasswordModalOpen && resetTargetUser) {
+    <div class="confirmation-overlay" role="dialog" aria-modal="true" aria-labelledby="reset-password-title">
+      <section class="confirmation-card">
+        <button class="modal-close-button" type="button" aria-label="Cerrar" (click)="closeResetPasswordModal()">×</button>
+        <h2 id="reset-password-title">Restablecer contrasena</h2>
+        <p>Define una nueva contrasena para {{ resetTargetUser.fullName || resetTargetUser.username }}. No necesitas la contrasena actual.</p>
+
+        <ion-item>
+          <ion-label position="floating">Nueva contrasena</ion-label>
+          <ion-input
+            [(ngModel)]="resetNewPassword"
+            (ionBlur)="resetPasswordTouched = true"
+            name="resetNewPassword"
+            type="password">
+          </ion-input>
+        </ion-item>
+
+        @if (resetPasswordError) {
+          <ion-text color="danger">
+            <p class="field-hint">{{ resetPasswordError }}</p>
+          </ion-text>
+        } @else {
+          <ion-text color="medium">
+            <p class="field-hint">{{ passwordHint }}</p>
+          </ion-text>
+        }
+
+        <div class="confirmation-actions">
+          <button class="secondary-modal-action" type="button" (click)="closeResetPasswordModal()">Cancelar</button>
+          <button class="primary-modal-action" type="button" [disabled]="savingResetPassword || !canSubmitResetPassword" (click)="submitResetPassword()">
+            @if (savingResetPassword) {
+              <ion-spinner name="crescent"></ion-spinner>
+            } @else {
+              Restablecer
+            }
           </button>
         </div>
       </section>

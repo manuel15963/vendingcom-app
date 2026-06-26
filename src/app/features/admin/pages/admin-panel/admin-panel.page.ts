@@ -10,6 +10,8 @@ import {
   IonContent,
   IonHeader,
   IonInput,
+  IonItem,
+  IonLabel,
   IonModal,
   IonSpinner,
   IonText,
@@ -18,6 +20,8 @@ import {
 } from '@ionic/angular/standalone';
 
 import { ToastService } from '../../../../core/feedback/toast.service';
+import { PASSWORD_HINT, getPasswordError, isPasswordValid } from '../../../../core/validation/password-policy';
+import { PasswordApiService } from '../../../password/data-access/password-api.service';
 import { ApiErrorResponse, ApiMessageResponse } from '../../../../shared/models/api-response.models';
 import { AuditLogsApiService } from '../../../audit-logs/data-access/audit-logs-api.service';
 import { AuthAuditLogResponse } from '../../../audit-logs/models/audit-log.models';
@@ -80,6 +84,8 @@ interface PendingUserAction {
     IonContent,
     IonHeader,
     IonInput,
+    IonItem,
+    IonLabel,
     IonModal,
     IonSpinner,
     IonText,
@@ -93,8 +99,11 @@ export class AdminPanelPage implements OnInit {
   private readonly usersApi = inject(UsersApiService);
   private readonly rolesApi = inject(RolesApiService);
   private readonly auditLogsApi = inject(AuditLogsApiService);
+  private readonly passwordApi = inject(PasswordApiService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+
+  readonly passwordHint = PASSWORD_HINT;
 
   activeTab: AdminTab = 'users';
   users: AuthUserResponse[] = [];
@@ -123,6 +132,13 @@ export class AdminPanelPage implements OnInit {
   successModalTone: FeedbackTone = 'success';
   private pendingSuccessModal: { title: string; message: string; tone?: FeedbackTone } | null = null;
   pendingUserAction: PendingUserAction | null = null;
+
+  resetPasswordModalOpen = false;
+  resetTargetUser: AuthUserResponse | null = null;
+  resetNewPassword = '';
+  resetPasswordTouched = false;
+  savingResetPassword = false;
+
   userFormMode: UserFormMode = 'create';
   userForm: UserFormModel = this.getEmptyUserForm();
   touchedUserFields: Partial<Record<UserFormField, boolean>> = {};
@@ -464,6 +480,57 @@ export class AdminPanelPage implements OnInit {
     });
   }
 
+  openResetPasswordModal(user: AuthUserResponse): void {
+    this.resetTargetUser = user;
+    this.resetNewPassword = '';
+    this.resetPasswordTouched = false;
+    this.resetPasswordModalOpen = true;
+  }
+
+  closeResetPasswordModal(): void {
+    this.resetPasswordModalOpen = false;
+    this.resetTargetUser = null;
+    this.resetNewPassword = '';
+    this.resetPasswordTouched = false;
+  }
+
+  get resetPasswordError(): string | null {
+    return this.resetPasswordTouched ? getPasswordError(this.resetNewPassword) : null;
+  }
+
+  get canSubmitResetPassword(): boolean {
+    return isPasswordValid(this.resetNewPassword);
+  }
+
+  submitResetPassword(): void {
+    this.resetPasswordTouched = true;
+
+    if (!this.resetTargetUser || !this.canSubmitResetPassword) {
+      return;
+    }
+
+    const targetUser = this.resetTargetUser;
+    this.savingResetPassword = true;
+
+    this.passwordApi.resetUserPassword(targetUser.userId, { newPassword: this.resetNewPassword.trim() }).subscribe({
+      next: () => {
+        this.savingResetPassword = false;
+        this.closeResetPasswordModal();
+        window.setTimeout(() => {
+          this.showSuccessModal(
+            'Contrasena restablecida',
+            `La contrasena de ${targetUser.fullName || targetUser.username} se restablecio correctamente.`,
+          );
+        }, 120);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.savingResetPassword = false;
+        const apiError = error.error as ApiErrorResponse | undefined;
+        void this.toast.error(apiError?.message || 'No se pudo restablecer la contrasena.');
+      }
+    });
+  }
+
   logout(): void {
     this.authApi.logout();
     void this.router.navigateByUrl('/login');
@@ -656,11 +723,9 @@ export class AdminPanelPage implements OnInit {
     }
 
     if (field === 'password' && this.userFormMode === 'create') {
-      if (!password) {
-        return 'La contrasena es obligatoria.';
-      }
-      if (password.length < 6) {
-        return 'Debe tener al menos 6 caracteres.';
+      const passwordError = getPasswordError(password);
+      if (passwordError) {
+        return passwordError;
       }
     }
 

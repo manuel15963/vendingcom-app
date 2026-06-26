@@ -13,6 +13,7 @@ import {
 } from '@ionic/angular/standalone';
 
 import { ApiErrorResponse } from '../../../../shared/models/api-response.models';
+import { PASSWORD_HINT, getPasswordError, isPasswordValid } from '../../../../core/validation/password-policy';
 import { PasswordApiService } from '../../data-access/password-api.service';
 
 @Component({
@@ -42,6 +43,16 @@ export class ChangePasswordPage {
   loading = false;
   errorMessage = '';
   successMessage = '';
+
+  readonly passwordHint = PASSWORD_HINT;
+
+  get newPasswordError(): string | null {
+    return this.newPassword ? getPasswordError(this.newPassword) : null;
+  }
+
+  get canSubmit(): boolean {
+    return !!this.currentPassword && isPasswordValid(this.newPassword);
+  }
 
   changePassword(): void {
     this.errorMessage = '';

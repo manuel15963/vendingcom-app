@@ -25,6 +25,15 @@ export const authErrorInterceptor: HttpInterceptorFn = (request, next) => {
         void router.navigateByUrl('/login');
       }
 
+      if (
+        error instanceof HttpErrorResponse &&
+        error.status === 429 &&
+        request.url.startsWith(environment.apiUrl)
+      ) {
+        const apiMessage = (error.error as { message?: string } | undefined)?.message;
+        void toast.error(apiMessage || 'Demasiadas solicitudes. Espera unos minutos e intenta de nuevo.');
+      }
+
       return throwError(() => error);
     })
   );
