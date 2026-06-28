@@ -12,8 +12,8 @@ import {
   IonText
 } from '@ionic/angular/standalone';
 
-import { ApiErrorResponse } from '../../../../shared/models/api-response.models';
-import { PASSWORD_HINT, getPasswordError, isPasswordValid } from '../../../../core/validation/password-policy';
+import { ApiErrorResponse } from '@shared/models/api-response.models';
+import { PASSWORD_HINT, getPasswordError, isPasswordValid } from '@core/validation/password-policy';
 import { PasswordApiService } from '../../data-access/password-api.service';
 
 @Component({

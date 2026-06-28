@@ -10,3 +10,12 @@ export interface ApiErrorResponse {
   code?: string;
   message?: string;
 }
+
+/** Respuesta paginada genérica (la usan todas las features). */
+export interface PagedResponse<T> {
+  content: T[];
+  page: number;
+  size: number;
+  totalElements: number;
+  totalPages: number;
+}

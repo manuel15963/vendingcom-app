@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { environment } from '../../../../environments/environment';
-import { ApiMessageResponse } from '../../../shared/models/api-response.models';
+import { environment } from '@env/environment';
+import { ApiMessageResponse } from '@shared/models/api-response.models';
 import { CustomerDocumentResponse, DocumentRequest } from '../models/customer.models';
 
 @Injectable({ providedIn: 'root' })

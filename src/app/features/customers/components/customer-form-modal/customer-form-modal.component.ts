@@ -3,19 +3,31 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
+  IonIcon,
   IonInput,
   IonModal,
   IonSelect,
   IonSelectOption,
   IonSpinner,
 } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import {
+  businessOutline,
+  callOutline,
+  globeOutline,
+  mailOutline,
+  peopleOutline,
+  pricetagOutline,
+} from 'ionicons/icons';
 
-import { ToastService } from '../../../../core/feedback/toast.service';
-import { ApiErrorResponse } from '../../../../shared/models/api-response.models';
+import { SuccessDialogService } from '@core/feedback/success-dialog.service';
+import { ToastService } from '@core/feedback/toast.service';
+import { ApiErrorResponse } from '@shared/models/api-response.models';
 import { CustomerCatalogApiService } from '../../data-access/customer-catalog-api.service';
 import { CustomersApiService } from '../../data-access/customers-api.service';
 import { CustomerParameter } from '../../models/customer.models';
-import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { ParameterGroup } from '../../models/customer.constants';
+import { ConfirmDialogComponent } from '@shared/ui/confirm-dialog/confirm-dialog.component';
 
 /**
  * Modal reutilizable para crear o editar un cliente.
@@ -27,7 +39,7 @@ import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.compone
   templateUrl: './customer-form-modal.component.html',
   styleUrls: ['./customer-form-modal.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonModal, IonInput, IonSelect, IonSelectOption, IonSpinner, ConfirmDialogComponent],
+  imports: [CommonModule, FormsModule, IonModal, IonInput, IonSelect, IonSelectOption, IonSpinner, IonIcon, ConfirmDialogComponent],
 })
 export class CustomerFormModalComponent implements OnChanges {
 
@@ -39,6 +51,7 @@ export class CustomerFormModalComponent implements OnChanges {
   private readonly customersApi = inject(CustomersApiService);
   private readonly catalogApi = inject(CustomerCatalogApiService);
   private readonly toast = inject(ToastService);
+  private readonly success = inject(SuccessDialogService);
 
   customerTypes: CustomerParameter[] = [];
   loading = false;
@@ -56,7 +69,8 @@ export class CustomerFormModalComponent implements OnChanges {
   };
 
   constructor() {
-    this.catalogApi.getByGroup('CUSTOMER_TYPE').subscribe({
+    addIcons({ businessOutline, peopleOutline, pricetagOutline, mailOutline, callOutline, globeOutline });
+    this.catalogApi.getByGroup(ParameterGroup.CUSTOMER_TYPE).subscribe({
       next: (types) => (this.customerTypes = types),
       error: () => void this.toast.error('No se pudieron cargar los tipos de cliente.'),
     });
@@ -148,11 +162,16 @@ export class CustomerFormModalComponent implements OnChanges {
       ? this.customersApi.update(this.customerId as number, request)
       : this.customersApi.create(request);
 
+    const name = this.form.businessName.trim();
     request$.subscribe({
       next: () => {
         this.saving = false;
-        void this.toast.success(this.isEdit ? 'Cliente actualizado.' : 'Cliente creado.');
         this.saved.emit();
+        if (this.isEdit) {
+          this.success.show('Cliente actualizado correctamente', `Los datos del cliente ${name} se actualizaron correctamente.`);
+        } else {
+          this.success.show('Cliente creado correctamente', `El cliente ${name} fue registrado correctamente.`);
+        }
       },
       error: (error: HttpErrorResponse) => {
         this.saving = false;

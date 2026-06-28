@@ -9,7 +9,7 @@ import {
   IonSpinner
 } from '@ionic/angular/standalone';
 
-import { ApiErrorResponse } from '../../../../shared/models/api-response.models';
+import { ApiErrorResponse } from '@shared/models/api-response.models';
 import { AuthApiService } from '../../data-access/auth-api.service';
 import { LoginResponse } from '../../models/auth.models';
 

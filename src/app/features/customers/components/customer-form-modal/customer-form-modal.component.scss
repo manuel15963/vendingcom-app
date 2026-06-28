@@ -4,10 +4,10 @@
 
 /* ---- Modal: tarjeta centrada con fondo difuminado ---- */
 ion-modal.form-modal {
-  --width: min(520px, calc(100% - 28px));
+  --width: min(640px, calc(100% - 28px));
   --height: auto;
   --border-radius: 22px;
-  --background: #f6f9fe;
+  --background: #ffffff;
   --box-shadow: 0 30px 90px rgba(11, 23, 51, 0.42);
   /* Fondo borroso: solo el modal queda nítido, lo demás fuera de foco. */
   --backdrop-opacity: 1;
@@ -42,7 +42,7 @@ ion-modal.form-modal {
   align-items: center;
   justify-content: space-between;
   padding: 15px 18px;
-  background: linear-gradient(90deg, #06162d 0%, #08244a 100%);
+  background: var(--brand-grad-header);
   color: #ffffff;
 
   h3 { margin: 0; font-size: 16px; font-weight: 800; }
@@ -81,22 +81,19 @@ ion-modal.form-modal {
 
 .loading { display: flex; justify-content: center; padding: 32px 0; }
 
-.card {
-  background: #ffffff;
-  border: 1px solid #e4ebf5;
-  border-radius: 16px;
-  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+/* ---- Formulario en 2 columnas (como la maqueta) ---- */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 14px;
 }
 
-.form-card {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 18px 16px;
+.form-grid .full {
+  grid-column: 1 / -1;
 }
 
-.form-card ion-input,
-.form-card ion-select {
+.form-grid ion-input,
+.form-grid ion-select {
   --border-radius: 12px;
   --border-color: #d7e0ee;
   --border-color-focused: #126fff;
@@ -106,6 +103,12 @@ ion-modal.form-modal {
   --color: #0b1736;
   --placeholder-color: #9aa7bd;
   font-size: 15px;
+}
+
+.form-grid ion-icon[slot="start"] {
+  color: var(--brand-blue, #126fff);
+  font-size: 18px;
+  margin-inline-end: 9px;
 }
 
 .error-box {
@@ -132,7 +135,7 @@ ion-modal.form-modal {
   font-size: 15px;
   color: #ffffff;
   border-radius: 14px;
-  background: linear-gradient(180deg, #126fff 0%, #0059d8 100%);
+  background: var(--brand-grad-btn);
   box-shadow: 0 10px 22px rgba(0, 89, 216, 0.25);
 
   &:disabled { opacity: 0.55; cursor: not-allowed; }
@@ -140,13 +143,17 @@ ion-modal.form-modal {
   ion-spinner { width: 22px; height: 22px; }
 }
 
-/* ---- Responsive móvil ---- */
-@media (max-width: 480px) {
+/* ---- Responsive móvil: una sola columna ---- */
+@media (max-width: 560px) {
   ion-modal.form-modal {
     --width: calc(100% - 20px);
     --border-radius: 18px;
   }
 
   .modal-body { padding: 14px; }
-  .form-card { padding: 16px 14px; }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }

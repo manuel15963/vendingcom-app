@@ -2,7 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { apiEndpoints } from '../../../core/config/api-endpoints';
+import { apiEndpoints } from '@core/config/api-endpoints';
 import { AuthRoleResponse, FindRolesParams } from '../models/role.models';
 
 @Injectable({

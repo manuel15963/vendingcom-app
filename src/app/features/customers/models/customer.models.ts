@@ -26,14 +26,6 @@ export interface CreateCustomerRequest {
 
 export type UpdateCustomerRequest = CreateCustomerRequest;
 
-export interface PagedResponse<T> {
-  content: T[];
-  page: number;
-  size: number;
-  totalElements: number;
-  totalPages: number;
-}
-
 export interface CustomerParameter {
   parameterId: number;
   parameterGroup: string;

@@ -12,28 +12,45 @@
         } @else {
           <p class="hint">Empresa, institución o persona. Los campos con * son obligatorios.</p>
 
-          <div class="card form-card">
-            <ion-input label="Razón social *" labelPlacement="floating" fill="outline"
-              [(ngModel)]="form.businessName" name="businessName" maxlength="150"></ion-input>
+          <div class="form-grid">
+            <ion-input label="Razón social *" labelPlacement="stacked" fill="outline"
+              placeholder="Ingrese la razón social"
+              [(ngModel)]="form.businessName" name="businessName" maxlength="150">
+              <ion-icon slot="start" name="business-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
 
-            <ion-input label="Nombre comercial" labelPlacement="floating" fill="outline"
-              [(ngModel)]="form.tradeName" name="tradeName" maxlength="150"></ion-input>
-
-            <ion-select label="Tipo de cliente *" labelPlacement="floating" fill="outline"
-              [(ngModel)]="form.customerTypeId" name="customerTypeId" interface="popover" placeholder="Selecciona">
+            <ion-select label="Tipo de cliente *" labelPlacement="stacked" fill="outline"
+              [(ngModel)]="form.customerTypeId" name="customerTypeId" interface="popover"
+              placeholder="Seleccione el tipo">
+              <ion-icon slot="start" name="people-outline" aria-hidden="true"></ion-icon>
               @for (type of customerTypes; track type.parameterId) {
                 <ion-select-option [value]="type.parameterId">{{ type.parameterValue }}</ion-select-option>
               }
             </ion-select>
 
-            <ion-input label="Correo principal" labelPlacement="floating" fill="outline" type="email"
-              [(ngModel)]="form.mainEmail" name="mainEmail" maxlength="120"></ion-input>
+            <ion-input label="Nombre comercial" labelPlacement="stacked" fill="outline"
+              placeholder="Ingrese el nombre comercial"
+              [(ngModel)]="form.tradeName" name="tradeName" maxlength="150">
+              <ion-icon slot="start" name="pricetag-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
 
-            <ion-input label="Teléfono principal" labelPlacement="floating" fill="outline"
-              [(ngModel)]="form.mainPhone" name="mainPhone" maxlength="20"></ion-input>
+            <ion-input label="Correo principal" labelPlacement="stacked" fill="outline" type="email"
+              placeholder="ejemplo@correo.com"
+              [(ngModel)]="form.mainEmail" name="mainEmail" maxlength="120">
+              <ion-icon slot="start" name="mail-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
 
-            <ion-input label="Sitio web" labelPlacement="floating" fill="outline"
-              [(ngModel)]="form.website" name="website" maxlength="150"></ion-input>
+            <ion-input label="Teléfono principal" labelPlacement="stacked" fill="outline"
+              placeholder="Ingrese el teléfono"
+              [(ngModel)]="form.mainPhone" name="mainPhone" maxlength="20">
+              <ion-icon slot="start" name="call-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
+
+            <ion-input label="Sitio web" labelPlacement="stacked" fill="outline"
+              placeholder="www.ejemplo.com (opcional)"
+              [(ngModel)]="form.website" name="website" maxlength="150">
+              <ion-icon slot="start" name="globe-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
           </div>
 
           @if (errorMessage) {

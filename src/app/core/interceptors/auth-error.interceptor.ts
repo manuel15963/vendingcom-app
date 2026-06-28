@@ -3,7 +3,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
 
-import { environment } from '../../../environments/environment';
+import { environment } from '@env/environment';
 import { ToastService } from '../feedback/toast.service';
 import { TokenStorageService } from '../storage/token-storage.service';
 

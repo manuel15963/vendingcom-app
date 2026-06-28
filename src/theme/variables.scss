@@ -22,4 +22,19 @@
   --ion-color-light: #f8fafc;
   --ion-color-medium: #64748b;
   --ion-color-dark: #0f172a;
+
+  /* ===== Tokens de marca VENDINGCOM (design system) ===== */
+  --brand-navy-1: #06162d;
+  --brand-navy-2: #08244a;
+  --brand-ink: #0b1736;        /* texto principal oscuro */
+  --brand-blue: #126fff;
+  --brand-blue-deep: #0059d8;
+  --brand-teal-1: #39d6cf;
+  --brand-teal-2: #2bb7ff;
+  --brand-bg: #f6f9fe;         /* fondo de página */
+
+  /* Gradientes de marca (firma visual, reutilizables) */
+  --brand-grad-header: linear-gradient(90deg, #06162d 0%, #08244a 100%);
+  --brand-grad-btn: linear-gradient(180deg, #126fff 0%, #0059d8 100%);
+  --brand-grad-avatar: linear-gradient(135deg, #39d6cf, #2bb7ff);
 }

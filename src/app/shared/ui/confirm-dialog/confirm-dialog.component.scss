@@ -1,0 +1,114 @@
+:host {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+ion-modal.confirm-modal {
+  --width: min(410px, calc(100% - 32px));
+  --height: auto;
+  --border-radius: 22px;
+  --background: #ffffff;
+  --box-shadow: 0 30px 90px rgba(11, 23, 51, 0.45);
+  --backdrop-opacity: 1;
+
+  &::part(backdrop) {
+    background: rgba(11, 23, 54, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  &::part(content) {
+    border-radius: 22px;
+    overflow: hidden;
+  }
+
+  .ion-page {
+    position: relative;
+    display: block;
+    contain: content;
+  }
+}
+
+.confirm-shell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 28px 24px 22px;
+}
+
+.confirm-icon {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  margin-bottom: 16px;
+  border-radius: 50%;
+  color: #0059d8;
+  background: #e3edff;
+
+  svg { width: 30px; height: 30px; }
+}
+
+.confirm-shell.is-danger .confirm-icon {
+  color: #d92d20;
+  background: #fdecec;
+}
+
+.confirm-shell h3 {
+  margin: 0 0 8px;
+  font-size: 19px;
+  font-weight: 800;
+  color: #0b1736;
+}
+
+.confirm-shell p {
+  margin: 0 0 22px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #64748b;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 47px;
+  border: 0;
+  border-radius: 13px;
+  font: inherit;
+  font-weight: 800;
+  font-size: 14.5px;
+  cursor: pointer;
+
+  &:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  ion-spinner { width: 20px; height: 20px; }
+}
+
+.btn.cancel {
+  background: #eef2f8;
+  color: #475569;
+}
+
+.btn.confirm {
+  color: #ffffff;
+  background: var(--brand-grad-btn);
+  box-shadow: 0 10px 22px rgba(0, 89, 216, 0.25);
+}
+
+.is-danger .btn.confirm {
+  background: linear-gradient(180deg, #f0463b 0%, #d92d20 100%);
+  box-shadow: 0 10px 22px rgba(217, 45, 32, 0.26);
+}
+
+@media (max-width: 480px) {
+  ion-modal.confirm-modal { --width: calc(100% - 24px); }
+  .confirm-shell { padding: 24px 18px 18px; }
+}

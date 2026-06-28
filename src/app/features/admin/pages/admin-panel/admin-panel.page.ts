@@ -19,10 +19,10 @@ import {
   IonToolbar
 } from '@ionic/angular/standalone';
 
-import { ToastService } from '../../../../core/feedback/toast.service';
-import { PASSWORD_HINT, getPasswordError, isPasswordValid } from '../../../../core/validation/password-policy';
+import { ToastService } from '@core/feedback/toast.service';
+import { PASSWORD_HINT, getPasswordError, isPasswordValid } from '@core/validation/password-policy';
 import { PasswordApiService } from '../../../password/data-access/password-api.service';
-import { ApiErrorResponse, ApiMessageResponse } from '../../../../shared/models/api-response.models';
+import { ApiErrorResponse, ApiMessageResponse } from '@shared/models/api-response.models';
 import { AuditLogsApiService } from '../../../audit-logs/data-access/audit-logs-api.service';
 import { AuthAuditLogResponse } from '../../../audit-logs/models/audit-log.models';
 import { AuthApiService } from '../../../auth/data-access/auth-api.service';

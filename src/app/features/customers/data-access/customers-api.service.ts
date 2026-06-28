@@ -2,14 +2,13 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { environment } from '../../../../environments/environment';
-import { ApiMessageResponse } from '../../../shared/models/api-response.models';
+import { environment } from '@env/environment';
+import { ApiMessageResponse, PagedResponse } from '@shared/models/api-response.models';
 import {
   CreateCustomerRequest,
   CustomerDetailResponse,
   CustomerResponse,
   CustomerSearchParams,
-  PagedResponse,
   UpdateCustomerRequest,
 } from '../models/customer.models';
 

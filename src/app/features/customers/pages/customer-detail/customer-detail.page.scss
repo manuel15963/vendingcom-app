@@ -3,7 +3,7 @@
 }
 
 .app-header ion-toolbar {
-  --background: linear-gradient(90deg, #06162d 0%, #08244a 100%);
+  --background: var(--brand-grad-header);
   --color: #ffffff;
   --border-width: 0;
 }
@@ -38,19 +38,6 @@
   border-radius: 18px;
   box-shadow: 0 14px 38px rgba(15, 23, 42, 0.06);
 
-  .avatar {
-    display: grid;
-    place-items: center;
-    width: 64px;
-    height: 64px;
-    border-radius: 20px;
-    color: #ffffff;
-    font-weight: 900;
-    font-size: 22px;
-    background: linear-gradient(135deg, #39d6cf, #2bb7ff);
-    box-shadow: 0 10px 22px rgba(43, 183, 255, 0.35);
-  }
-
   h1 {
     margin: 14px 0 2px;
     font-size: 21px;
@@ -63,20 +50,6 @@
     color: #64748b;
     font-size: 14px;
   }
-}
-
-/* ---- Pills ---- */
-.pill {
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.3px;
-  color: #64748b;
-  background: #eef2f7;
-
-  &.sm { padding: 5px 11px; font-size: 11px; }
-  &.on { color: #0f7a37; background: #dcfce7; }
 }
 
 /* ---- Tabs ---- */
@@ -153,8 +126,21 @@
   color: #ffffff;
   padding: 8px 15px;
   border-radius: 10px;
-  background: linear-gradient(180deg, #126fff 0%, #0059d8 100%);
+  background: var(--brand-grad-btn);
   box-shadow: 0 8px 18px rgba(0, 89, 216, 0.22);
+}
+
+.add-hint {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #94a3b8;
+}
+
+.field-error {
+  margin: -8px 2px 0;
+  color: #c0362c;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .cards { display: flex; flex-direction: column; gap: 10px; }
@@ -225,16 +211,19 @@
   vertical-align: middle;
 }
 
-/* ---- Modales ---- */
-.form-card {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  padding: 18px 16px;
+/* ---- Modales: formulario en 2 columnas (como la maqueta) ---- */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 14px;
 }
 
-.form-card ion-input,
-.form-card ion-select {
+.form-grid .full {
+  grid-column: 1 / -1;
+}
+
+.form-grid ion-input,
+.form-grid ion-select {
   --border-radius: 12px;
   --border-color: #d7e0ee;
   --border-color-focused: #126fff;
@@ -246,11 +235,24 @@
   font-size: 15px;
 }
 
-.form-card ion-toggle {
+.form-grid ion-icon[slot="start"] {
+  color: var(--brand-blue, #126fff);
+  font-size: 18px;
+  margin-inline-end: 9px;
+}
+
+.form-grid ion-toggle {
   --track-background-checked: #126fff;
   font-size: 14px;
   font-weight: 600;
   color: #0b1736;
+}
+
+@media (max-width: 560px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
 
 .primary-btn {
@@ -265,7 +267,7 @@
   color: #ffffff;
   padding: 14px;
   border-radius: 14px;
-  background: linear-gradient(180deg, #126fff 0%, #0059d8 100%);
+  background: var(--brand-grad-btn);
   box-shadow: 0 10px 22px rgba(0, 89, 216, 0.25);
 
   &:disabled { opacity: 0.55; }
@@ -273,10 +275,10 @@
 
 /* ---- Modal: tarjeta centrada que se ajusta al contenido ---- */
 ion-modal.form-modal {
-  --width: min(520px, calc(100% - 28px));
+  --width: min(640px, calc(100% - 28px));
   --height: auto;
   --border-radius: 22px;
-  --background: #f6f9fe;
+  --background: #ffffff;
   --box-shadow: 0 30px 90px rgba(11, 23, 51, 0.42);
   /* Fondo borroso: solo el modal queda nítido, lo demás fuera de foco. */
   --backdrop-opacity: 1;
@@ -311,7 +313,7 @@ ion-modal.form-modal {
   align-items: center;
   justify-content: space-between;
   padding: 15px 18px;
-  background: linear-gradient(90deg, #06162d 0%, #08244a 100%);
+  background: var(--brand-grad-header);
   color: #ffffff;
 
   h3 { margin: 0; font-size: 16px; font-weight: 800; }
@@ -341,7 +343,7 @@ ion-modal.form-modal {
   padding: 18px;
   overflow-y: auto;
 
-  .form-card { margin: 0; }
+  .form-grid { margin: 0; }
   .primary-btn { margin-top: 2px; }
 }
 
@@ -350,7 +352,6 @@ ion-modal.form-modal {
   .page { padding: 14px 12px 24px; }
 
   .hero { padding: 22px 16px 18px; }
-  .hero .avatar { width: 56px; height: 56px; font-size: 19px; }
   .hero h1 { font-size: 19px; }
 
   .tabs { gap: 4px; padding: 4px; }

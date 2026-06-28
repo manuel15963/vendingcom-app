@@ -1,6 +1,6 @@
 export {
   AuthApiService as AuthService
-} from '../../features/auth/data-access/auth-api.service';
+} from '@features/auth/data-access/auth-api.service';
 
 export type {
   AuthRole as LoginRoleResponse,
@@ -10,4 +10,4 @@ export type {
   LoginResponse,
   PasswordRecoveryRequest,
   PasswordRecoveryConfirmRequest
-} from '../../features/auth/models/auth.models';
+} from '@features/auth/models/auth.models';
