@@ -17,7 +17,7 @@ export const authErrorInterceptor: HttpInterceptorFn = (request, next) => {
       if (
         error instanceof HttpErrorResponse &&
         error.status === 401 &&
-        request.url.startsWith(environment.apiUrl) &&
+        isApiRequest(request.url) &&
         !isPublicAuthRequest(request.url)
       ) {
         tokenStorage.clear();
@@ -28,7 +28,7 @@ export const authErrorInterceptor: HttpInterceptorFn = (request, next) => {
       if (
         error instanceof HttpErrorResponse &&
         error.status === 429 &&
-        request.url.startsWith(environment.apiUrl)
+        isApiRequest(request.url)
       ) {
         const apiMessage = (error.error as { message?: string } | undefined)?.message;
         void toast.error(apiMessage || 'Demasiadas solicitudes. Espera unos minutos e intenta de nuevo.');
@@ -38,6 +38,10 @@ export const authErrorInterceptor: HttpInterceptorFn = (request, next) => {
     })
   );
 };
+
+function isApiRequest(url: string): boolean {
+  return url.startsWith(environment.apiUrl) || url.startsWith(environment.customerApiUrl);
+}
 
 function isPublicAuthRequest(url: string): boolean {
   const publicUrls = [

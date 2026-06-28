@@ -1,0 +1,65 @@
+<ion-modal class="form-modal" [isOpen]="open" (didDismiss)="closed.emit()">
+  <ng-template>
+    <div class="modal-shell">
+      <div class="modal-top">
+        <h3>{{ title }}</h3>
+        <button class="modal-close" (click)="close()" aria-label="Cerrar">✕</button>
+      </div>
+
+      <div class="modal-body">
+        @if (loading) {
+          <div class="loading"><ion-spinner name="crescent"></ion-spinner></div>
+        } @else {
+          <p class="hint">Empresa, institución o persona. Los campos con * son obligatorios.</p>
+
+          <div class="card form-card">
+            <ion-input label="Razón social *" labelPlacement="floating" fill="outline"
+              [(ngModel)]="form.businessName" name="businessName" maxlength="150"></ion-input>
+
+            <ion-input label="Nombre comercial" labelPlacement="floating" fill="outline"
+              [(ngModel)]="form.tradeName" name="tradeName" maxlength="150"></ion-input>
+
+            <ion-select label="Tipo de cliente *" labelPlacement="floating" fill="outline"
+              [(ngModel)]="form.customerTypeId" name="customerTypeId" interface="popover" placeholder="Selecciona">
+              @for (type of customerTypes; track type.parameterId) {
+                <ion-select-option [value]="type.parameterId">{{ type.parameterValue }}</ion-select-option>
+              }
+            </ion-select>
+
+            <ion-input label="Correo principal" labelPlacement="floating" fill="outline" type="email"
+              [(ngModel)]="form.mainEmail" name="mainEmail" maxlength="120"></ion-input>
+
+            <ion-input label="Teléfono principal" labelPlacement="floating" fill="outline"
+              [(ngModel)]="form.mainPhone" name="mainPhone" maxlength="20"></ion-input>
+
+            <ion-input label="Sitio web" labelPlacement="floating" fill="outline"
+              [(ngModel)]="form.website" name="website" maxlength="150"></ion-input>
+          </div>
+
+          @if (errorMessage) {
+            <div class="error-box">{{ errorMessage }}</div>
+          }
+
+          <button class="primary-btn" [disabled]="saving || !canSubmit" (click)="save()">
+            @if (saving) {
+              <ion-spinner name="crescent"></ion-spinner>
+              <span>Guardando…</span>
+            } @else {
+              {{ isEdit ? 'Guardar cambios' : 'Crear cliente' }}
+            }
+          </button>
+        }
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- Confirmación al guardar una edición -->
+<app-confirm-dialog
+  [open]="editConfirmOpen"
+  title="¿Guardar cambios?"
+  message="Se actualizarán los datos de este cliente."
+  confirmText="Guardar cambios"
+  (confirmed)="onEditConfirm()"
+  (cancelled)="editConfirmOpen = false">
+</app-confirm-dialog>

@@ -1,0 +1,73 @@
+<ion-header class="app-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard" text="Menú"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Clientes</ion-title>
+    <ion-buttons slot="end">
+      <ion-button class="new-btn" (click)="newCustomer()">+ Nuevo</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-bg">
+  <div class="page">
+
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24" class="search-icon"><path d="M21 21l-4.3-4.3M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input
+        class="search-input"
+        [(ngModel)]="search"
+        name="search"
+        (keyup.enter)="applySearch()"
+        placeholder="Buscar por razón social o nombre comercial..." />
+      <button class="search-btn" (click)="applySearch()">Buscar</button>
+    </div>
+
+    @if (loading) {
+      <div class="center"><ion-spinner name="crescent"></ion-spinner></div>
+    } @else if (errorMessage) {
+      <div class="state error">{{ errorMessage }}</div>
+    } @else if (customers.length === 0) {
+      <div class="state empty">
+        <span class="emoji">🗂️</span>
+        <p>No hay clientes para mostrar.</p>
+        <button class="primary-btn" (click)="newCustomer()">Registrar el primero</button>
+      </div>
+    } @else {
+      <div class="cards">
+        @for (c of customers; track c.customerId) {
+          <button class="customer-card" (click)="open(c)">
+            <span class="avatar">{{ initials(c.businessName) }}</span>
+            <span class="info">
+              <strong>{{ c.businessName }}</strong>
+              <small>{{ c.customerTypeName }} · {{ c.mainEmail || 'sin correo' }}</small>
+            </span>
+            <span
+              class="pill"
+              [class.on]="isActive(c)"
+              (click)="toggleStatus(c, $event)">
+              {{ c.customerStatusName }}
+            </span>
+            <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        }
+      </div>
+
+      <div class="pager">
+        <button class="page-btn" [disabled]="page === 0" (click)="prevPage()">‹</button>
+        <span>Página {{ page + 1 }} de {{ totalPages }} · {{ totalElements }} clientes</span>
+        <button class="page-btn" [disabled]="page + 1 >= totalPages" (click)="nextPage()">›</button>
+      </div>
+    }
+
+  </div>
+</ion-content>
+
+<!-- Modal crear/editar cliente -->
+<app-customer-form-modal
+  [open]="formModalOpen"
+  [customerId]="editingCustomerId"
+  (closed)="formModalOpen = false"
+  (saved)="onFormSaved()">
+</app-customer-form-modal>

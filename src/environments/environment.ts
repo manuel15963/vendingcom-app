@@ -2,9 +2,14 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
-export const environment = {
+import { Environment } from './environment.model';
+
+export const environment: Environment = {
   production: false,
-  apiUrl: 'https://vendingcom-auth-service.onrender.com/api/v1'
+  // auth-service (desplegado en Render)
+  apiUrl: 'https://vendingcom-auth-service.onrender.com/api/v1',
+  // customer-service (desplegado en Render)
+  customerApiUrl: 'https://vendingcom-customer-service.onrender.com/api/v1'
 };
 
 /*
