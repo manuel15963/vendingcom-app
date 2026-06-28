@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { apiEndpoints } from '../../../core/config/api-endpoints';
-import { ApiMessageResponse } from '../../../shared/models/api-response.models';
+import { apiEndpoints } from '@core/config/api-endpoints';
+import { ApiMessageResponse } from '@shared/models/api-response.models';
 import {
   AdminResetPasswordRequest,
   ChangePasswordRequest,

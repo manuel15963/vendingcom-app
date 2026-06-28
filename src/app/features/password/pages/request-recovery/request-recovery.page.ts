@@ -12,7 +12,7 @@ import {
   IonText
 } from '@ionic/angular/standalone';
 
-import { ApiErrorResponse } from '../../../../shared/models/api-response.models';
+import { ApiErrorResponse } from '@shared/models/api-response.models';
 import { PasswordApiService } from '../../data-access/password-api.service';
 
 @Component({

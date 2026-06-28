@@ -37,20 +37,27 @@
     } @else {
       <div class="cards">
         @for (c of customers; track c.customerId) {
-          <button class="customer-card" (click)="open(c)">
-            <span class="avatar">{{ initials(c.businessName) }}</span>
+          <div class="customer-card">
+            <app-avatar [name]="c.businessName"></app-avatar>
             <span class="info">
               <strong>{{ c.businessName }}</strong>
               <small>{{ c.customerTypeName }} · {{ c.mainEmail || 'sin correo' }}</small>
             </span>
-            <span
-              class="pill"
-              [class.on]="isActive(c)"
+            <app-status-pill
+              size="sm"
+              [active]="isActive(c)"
+              [label]="c.customerStatusName || ''"
               (click)="toggleStatus(c, $event)">
-              {{ c.customerStatusName }}
-            </span>
-            <svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </button>
+            </app-status-pill>
+            <div class="row-actions">
+              <button class="icon-btn view" (click)="open(c)" aria-label="Ver ficha" title="Ver ficha">
+                <ion-icon name="eye-outline" aria-hidden="true"></ion-icon>
+              </button>
+              <button class="icon-btn edit" (click)="editCustomer(c, $event)" aria-label="Editar cliente" title="Editar">
+                <ion-icon name="create-outline" aria-hidden="true"></ion-icon>
+              </button>
+            </div>
+          </div>
         }
       </div>
 

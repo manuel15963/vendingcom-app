@@ -3,7 +3,7 @@
 }
 
 .app-header ion-toolbar {
-  --background: linear-gradient(90deg, #06162d 0%, #08244a 100%);
+  --background: var(--brand-grad-header);
   --color: #ffffff;
   --border-width: 0;
 }
@@ -76,7 +76,7 @@
   color: #ffffff;
   padding: 9px 16px;
   border-radius: 10px;
-  background: linear-gradient(180deg, #126fff 0%, #0059d8 100%);
+  background: var(--brand-grad-btn);
   box-shadow: 0 8px 18px rgba(0, 89, 216, 0.22);
 }
 
@@ -94,7 +94,6 @@
   gap: 14px;
   width: 100%;
   text-align: left;
-  cursor: pointer;
   padding: 14px 16px;
   border: 1px solid #e4ebf5;
   border-radius: 14px;
@@ -106,19 +105,6 @@
 .customer-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 16px 36px rgba(15, 23, 42, 0.1);
-}
-
-.avatar {
-  display: grid;
-  place-items: center;
-  width: 46px;
-  height: 46px;
-  flex-shrink: 0;
-  border-radius: 14px;
-  color: #ffffff;
-  font-weight: 900;
-  font-size: 15px;
-  background: linear-gradient(135deg, #39d6cf, #2bb7ff);
 }
 
 .info {
@@ -146,27 +132,31 @@
   }
 }
 
-.pill {
+/* ---- Acciones por fila (ver / editar) ---- */
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   flex-shrink: 0;
-  padding: 5px 11px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.3px;
-  color: #64748b;
-  background: #eef2f7;
-
-  &.on {
-    color: #0f7a37;
-    background: #dcfce7;
-  }
 }
 
-.chev {
-  width: 18px;
-  height: 18px;
-  color: #c2ccdb;
-  flex-shrink: 0;
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #f1f5f9;
+  color: #475569;
+  transition: filter 0.15s ease;
+
+  ion-icon { font-size: 19px; }
+
+  &:hover { filter: brightness(0.97); }
+  &.view { background: #e3edff; color: #0059d8; }
+  &.edit { background: #eafaf0; color: #0f7a37; }
 }
 
 /* ---- Estados ---- */
@@ -204,7 +194,7 @@
   color: #ffffff;
   padding: 11px 20px;
   border-radius: 12px;
-  background: linear-gradient(180deg, #126fff 0%, #0059d8 100%);
+  background: var(--brand-grad-btn);
   box-shadow: 0 8px 18px rgba(0, 89, 216, 0.22);
 }
 
@@ -244,11 +234,10 @@
   .search-input { font-size: 14px; }
   .search-btn { padding: 9px 13px; font-size: 12.5px; }
 
-  .customer-card { gap: 11px; padding: 12px 13px; }
-  .avatar { width: 42px; height: 42px; font-size: 14px; }
+  .customer-card { gap: 10px; padding: 12px 13px; }
   .info strong { font-size: 14px; }
   .info small { font-size: 12px; }
-  .chev { display: none; }
+  .icon-btn { width: 34px; height: 34px; }
 
   .pager { gap: 12px; font-size: 12px; }
 }

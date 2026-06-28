@@ -8,8 +8,8 @@ import {
   IonText
 } from '@ionic/angular/standalone';
 
-import { ToastService } from '../../../../core/feedback/toast.service';
-import { ApiErrorResponse } from '../../../../shared/models/api-response.models';
+import { ToastService } from '@core/feedback/toast.service';
+import { ApiErrorResponse } from '@shared/models/api-response.models';
 import { AuthApiService } from '../../../auth/data-access/auth-api.service';
 import { AuthenticatedUserResponse } from '../../../auth/models/auth.models';
 import { UsersApiService } from '../../../users/data-access/users-api.service';

@@ -20,12 +20,13 @@
 
       <!-- HERO -->
       <div class="hero">
-        <span class="avatar">{{ initials(detail.customer.businessName) }}</span>
+        <app-avatar [name]="detail.customer.businessName" size="lg"></app-avatar>
         <h1>{{ detail.customer.businessName }}</h1>
         <p>{{ detail.customer.customerTypeName }}</p>
-        <span class="pill" [class.on]="isActive(detail.customer.customerStatusName)">
-          {{ detail.customer.customerStatusName }}
-        </span>
+        <app-status-pill
+          [active]="isActive(detail.customer.customerStatusName)"
+          [label]="detail.customer.customerStatusName || ''">
+        </app-status-pill>
       </div>
 
       <!-- TABS -->
@@ -62,7 +63,7 @@
                   <strong>{{ c.fullName }} @if (c.isPrimary) { <span class="tag">Principal</span> }</strong>
                   <small>{{ c.position || '—' }} · {{ c.email || 'sin correo' }} · {{ c.phone || 's/tel' }}</small>
                 </span>
-                <span class="pill sm" [class.on]="isActive(c.contactStatusName)">{{ c.contactStatusName }}</span>
+                <app-status-pill size="sm" [active]="isActive(c.contactStatusName)" [label]="c.contactStatusName || ''"></app-status-pill>
                 <div class="row-actions">
                   <button class="act-btn edit" (click)="openContactModal(c)">Editar</button>
                   @if (isActive(c.contactStatusName)) {
@@ -93,7 +94,7 @@
                   <strong>{{ a.addressTypeName }} @if (a.isPrimary) { <span class="tag">Principal</span> }</strong>
                   <small>{{ a.addressLine }} · {{ a.district || '' }} {{ a.province || '' }}</small>
                 </span>
-                <span class="pill sm" [class.on]="isActive(a.addressStatusName)">{{ a.addressStatusName }}</span>
+                <app-status-pill size="sm" [active]="isActive(a.addressStatusName)" [label]="a.addressStatusName || ''"></app-status-pill>
                 <div class="row-actions">
                   <button class="act-btn edit" (click)="openAddressModal(a)">Editar</button>
                   @if (isActive(a.addressStatusName)) {
@@ -112,7 +113,11 @@
       @if (segment === 'documents') {
         <div class="section-head">
           <h2>Documentos</h2>
-          <button class="add-btn" (click)="openDocumentModal()">+ Agregar</button>
+          @if (canAddDocument) {
+            <button class="add-btn" (click)="openDocumentModal()">+ Agregar</button>
+          } @else {
+            <span class="add-hint">Ya registró todos sus documentos</span>
+          }
         </div>
         @if (detail.documents.length === 0) {
           <div class="state empty">Sin documentos registrados.</div>
@@ -124,7 +129,7 @@
                   <strong>{{ d.documentTypeName }}: {{ d.documentNumber }} @if (d.isPrimary) { <span class="tag">Principal</span> }</strong>
                   <small>{{ d.fileUrl || 'sin archivo' }}</small>
                 </span>
-                <span class="pill sm" [class.on]="isActive(d.documentStatusName)">{{ d.documentStatusName }}</span>
+                <app-status-pill size="sm" [active]="isActive(d.documentStatusName)" [label]="d.documentStatusName || ''"></app-status-pill>
                 <div class="row-actions">
                   <button class="act-btn edit" (click)="openDocumentModal(d)">Editar</button>
                   @if (isActive(d.documentStatusName)) {
@@ -152,12 +157,24 @@
         <button class="modal-close" (click)="contactModalOpen = false" aria-label="Cerrar">✕</button>
       </div>
       <div class="modal-body">
-        <div class="card form-card">
-          <ion-input label="Nombre completo *" labelPlacement="floating" fill="outline" [(ngModel)]="contactForm.fullName"></ion-input>
-          <ion-input label="Cargo" labelPlacement="floating" fill="outline" [(ngModel)]="contactForm.position"></ion-input>
-          <ion-input label="Correo" labelPlacement="floating" fill="outline" type="email" [(ngModel)]="contactForm.email"></ion-input>
-          <ion-input label="Teléfono" labelPlacement="floating" fill="outline" [(ngModel)]="contactForm.phone"></ion-input>
-          <ion-toggle labelPlacement="start" [(ngModel)]="contactForm.isPrimary">Marcar como principal</ion-toggle>
+        <div class="form-grid">
+          <ion-input label="Nombre completo *" labelPlacement="stacked" fill="outline"
+            placeholder="Ingrese el nombre completo" [(ngModel)]="contactForm.fullName">
+            <ion-icon slot="start" name="person-outline" aria-hidden="true"></ion-icon>
+          </ion-input>
+          <ion-input label="Cargo" labelPlacement="stacked" fill="outline"
+            placeholder="Ingrese el cargo" [(ngModel)]="contactForm.position">
+            <ion-icon slot="start" name="briefcase-outline" aria-hidden="true"></ion-icon>
+          </ion-input>
+          <ion-input label="Correo" labelPlacement="stacked" fill="outline" type="email"
+            placeholder="ejemplo@correo.com" [(ngModel)]="contactForm.email">
+            <ion-icon slot="start" name="mail-outline" aria-hidden="true"></ion-icon>
+          </ion-input>
+          <ion-input label="Teléfono" labelPlacement="stacked" fill="outline"
+            placeholder="Ingrese el teléfono" [(ngModel)]="contactForm.phone">
+            <ion-icon slot="start" name="call-outline" aria-hidden="true"></ion-icon>
+          </ion-input>
+          <ion-toggle class="full" labelPlacement="start" [(ngModel)]="contactForm.isPrimary">Marcar como principal</ion-toggle>
         </div>
         <button class="primary-btn" [disabled]="saving || !contactForm.fullName.trim()" (click)="saveContact()">Guardar contacto</button>
       </div>
@@ -174,17 +191,32 @@
         <button class="modal-close" (click)="addressModalOpen = false" aria-label="Cerrar">✕</button>
       </div>
       <div class="modal-body">
-        <div class="card form-card">
-          <ion-select label="Tipo *" labelPlacement="floating" fill="outline" [(ngModel)]="addressForm.addressTypeId" interface="popover" placeholder="Selecciona">
+        <div class="form-grid">
+          <ion-select label="Tipo *" labelPlacement="stacked" fill="outline" [(ngModel)]="addressForm.addressTypeId" interface="popover" placeholder="Selecciona">
+            <ion-icon slot="start" name="pricetag-outline" aria-hidden="true"></ion-icon>
             @for (t of addressTypes; track t.parameterId) { <ion-select-option [value]="t.parameterId">{{ t.parameterValue }}</ion-select-option> }
           </ion-select>
-          <ion-input label="Dirección *" labelPlacement="floating" fill="outline" [(ngModel)]="addressForm.addressLine"></ion-input>
-          <ion-input label="Distrito" labelPlacement="floating" fill="outline" [(ngModel)]="addressForm.district"></ion-input>
-          <ion-input label="Provincia" labelPlacement="floating" fill="outline" [(ngModel)]="addressForm.province"></ion-input>
-          <ion-input label="Departamento" labelPlacement="floating" fill="outline" [(ngModel)]="addressForm.department"></ion-input>
-          <ion-input label="País" labelPlacement="floating" fill="outline" [(ngModel)]="addressForm.country"></ion-input>
-          <ion-input label="Referencia" labelPlacement="floating" fill="outline" [(ngModel)]="addressForm.reference"></ion-input>
-          <ion-toggle labelPlacement="start" [(ngModel)]="addressForm.isPrimary">Marcar como principal</ion-toggle>
+          <ion-input label="Dirección *" labelPlacement="stacked" fill="outline"
+            placeholder="Av. / Calle / Jr." [(ngModel)]="addressForm.addressLine">
+            <ion-icon slot="start" name="home-outline" aria-hidden="true"></ion-icon>
+          </ion-input>
+          <ion-input label="Distrito" labelPlacement="stacked" fill="outline" [(ngModel)]="addressForm.district">
+            <ion-icon slot="start" name="map-outline" aria-hidden="true"></ion-icon>
+          </ion-input>
+          <ion-input label="Provincia" labelPlacement="stacked" fill="outline" [(ngModel)]="addressForm.province">
+            <ion-icon slot="start" name="map-outline" aria-hidden="true"></ion-icon>
+          </ion-input>
+          <ion-input label="Departamento" labelPlacement="stacked" fill="outline" [(ngModel)]="addressForm.department">
+            <ion-icon slot="start" name="map-outline" aria-hidden="true"></ion-icon>
+          </ion-input>
+          <ion-input label="País" labelPlacement="stacked" fill="outline" [(ngModel)]="addressForm.country">
+            <ion-icon slot="start" name="earth-outline" aria-hidden="true"></ion-icon>
+          </ion-input>
+          <ion-input class="full" label="Referencia" labelPlacement="stacked" fill="outline"
+            placeholder="Cerca de…" [(ngModel)]="addressForm.reference">
+            <ion-icon slot="start" name="navigate-outline" aria-hidden="true"></ion-icon>
+          </ion-input>
+          <ion-toggle class="full" labelPlacement="start" [(ngModel)]="addressForm.isPrimary">Marcar como principal</ion-toggle>
         </div>
         <button class="primary-btn" [disabled]="saving || !addressForm.addressLine.trim() || addressForm.addressTypeId == null" (click)="saveAddress()">Guardar dirección</button>
       </div>
@@ -201,15 +233,25 @@
         <button class="modal-close" (click)="documentModalOpen = false" aria-label="Cerrar">✕</button>
       </div>
       <div class="modal-body">
-        <div class="card form-card">
-          <ion-select label="Tipo *" labelPlacement="floating" fill="outline" [(ngModel)]="documentForm.documentTypeId" interface="popover" placeholder="Selecciona">
-            @for (t of documentTypes; track t.parameterId) { <ion-select-option [value]="t.parameterId">{{ t.parameterValue }}</ion-select-option> }
+        <div class="form-grid">
+          <ion-select label="Tipo *" labelPlacement="stacked" fill="outline" [(ngModel)]="documentForm.documentTypeId" interface="popover" placeholder="Selecciona">
+            <ion-icon slot="start" name="document-text-outline" aria-hidden="true"></ion-icon>
+            @for (t of availableDocumentTypes; track t.parameterId) { <ion-select-option [value]="t.parameterId">{{ t.parameterValue }}</ion-select-option> }
           </ion-select>
-          <ion-input label="Número *" labelPlacement="floating" fill="outline" [(ngModel)]="documentForm.documentNumber"></ion-input>
-          <ion-input label="URL del archivo" labelPlacement="floating" fill="outline" [(ngModel)]="documentForm.fileUrl"></ion-input>
-          <ion-toggle labelPlacement="start" [(ngModel)]="documentForm.isPrimary">Marcar como principal</ion-toggle>
+          <ion-input label="Número *" labelPlacement="stacked" fill="outline"
+            placeholder="N° de documento" [(ngModel)]="documentForm.documentNumber">
+            <ion-icon slot="start" name="keypad-outline" aria-hidden="true"></ion-icon>
+          </ion-input>
+          @if (documentNumberError) {
+            <small class="field-error full">{{ documentNumberError }}</small>
+          }
+          <ion-input class="full" label="URL del archivo" labelPlacement="stacked" fill="outline"
+            placeholder="https://… (opcional)" [(ngModel)]="documentForm.fileUrl">
+            <ion-icon slot="start" name="link-outline" aria-hidden="true"></ion-icon>
+          </ion-input>
+          <ion-toggle class="full" labelPlacement="start" [(ngModel)]="documentForm.isPrimary">Marcar como principal</ion-toggle>
         </div>
-        <button class="primary-btn" [disabled]="saving || !documentForm.documentNumber.trim() || documentForm.documentTypeId == null" (click)="saveDocument()">Guardar documento</button>
+        <button class="primary-btn" [disabled]="saving || !canSaveDocument" (click)="saveDocument()">Guardar documento</button>
       </div>
     </div>
   </ng-template>

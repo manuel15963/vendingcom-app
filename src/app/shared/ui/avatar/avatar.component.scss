@@ -1,0 +1,27 @@
+:host { display: inline-flex; }
+
+.avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 900;
+  color: #ffffff;
+  background: var(--brand-grad-avatar);
+}
+
+.avatar[data-size="lg"] {
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  font-size: 22px;
+  box-shadow: 0 10px 22px rgba(43, 183, 255, 0.35);
+}
+
+@media (max-width: 480px) {
+  .avatar { width: 42px; height: 42px; font-size: 14px; }
+  .avatar[data-size="lg"] { width: 56px; height: 56px; font-size: 19px; }
+}

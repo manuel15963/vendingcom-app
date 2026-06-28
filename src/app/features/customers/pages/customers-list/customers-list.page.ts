@@ -10,16 +10,23 @@ import {
   IonButtons,
   IonContent,
   IonHeader,
+  IonIcon,
   IonSpinner,
   IonTitle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import { createOutline, eyeOutline } from 'ionicons/icons';
 
-import { ToastService } from '../../../../core/feedback/toast.service';
-import { ApiErrorResponse, ApiMessageResponse } from '../../../../shared/models/api-response.models';
+import { SuccessDialogService } from '@core/feedback/success-dialog.service';
+import { ToastService } from '@core/feedback/toast.service';
+import { ApiErrorResponse, ApiMessageResponse } from '@shared/models/api-response.models';
 import { CustomerFormModalComponent } from '../../components/customer-form-modal/customer-form-modal.component';
 import { CustomersApiService } from '../../data-access/customers-api.service';
 import { CustomerResponse } from '../../models/customer.models';
+import { StatusLabel } from '../../models/customer.constants';
+import { AvatarComponent } from '@shared/ui/avatar/avatar.component';
+import { StatusPillComponent } from '@shared/ui/status-pill/status-pill.component';
 
 @Component({
   selector: 'app-customers-list',
@@ -37,7 +44,10 @@ import { CustomerResponse } from '../../models/customer.models';
     IonButton,
     IonContent,
     IonSpinner,
+    IonIcon,
     CustomerFormModalComponent,
+    AvatarComponent,
+    StatusPillComponent,
   ],
 })
 export class CustomersListPage implements OnInit {
@@ -45,6 +55,11 @@ export class CustomersListPage implements OnInit {
   private readonly customersApi = inject(CustomersApiService);
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
+  private readonly success = inject(SuccessDialogService);
+
+  constructor() {
+    addIcons({ eyeOutline, createOutline });
+  }
 
   customers: CustomerResponse[] = [];
   loading = false;
@@ -101,17 +116,18 @@ export class CustomersListPage implements OnInit {
     }
   }
 
-  initials(name: string): string {
-    const words = (name || '').trim().split(/\s+/).slice(0, 2);
-    return words.map((w) => w[0]?.toUpperCase() || '').join('') || 'C';
-  }
-
   isActive(customer: CustomerResponse): boolean {
-    return customer.customerStatusName === 'ACTIVO';
+    return customer.customerStatusName === StatusLabel.ACTIVE;
   }
 
   newCustomer(): void {
     this.editingCustomerId = null;
+    this.formModalOpen = true;
+  }
+
+  editCustomer(customer: CustomerResponse, event?: Event): void {
+    event?.stopPropagation();
+    this.editingCustomerId = customer.customerId;
     this.formModalOpen = true;
   }
 
@@ -127,15 +143,20 @@ export class CustomersListPage implements OnInit {
 
   toggleStatus(customer: CustomerResponse, event: Event): void {
     event.stopPropagation();
-    const isActive = customer.customerStatusName === 'ACTIVO';
-    const action$: Observable<CustomerResponse | ApiMessageResponse> = isActive
+    const active = this.isActive(customer);
+    const action$: Observable<CustomerResponse | ApiMessageResponse> = active
       ? this.customersApi.deactivate(customer.customerId)
       : this.customersApi.activate(customer.customerId);
 
     action$.subscribe({
       next: () => {
-        void this.toast.success(isActive ? 'Cliente desactivado.' : 'Cliente activado.');
         this.load();
+        this.success.show(
+          active ? 'Cliente desactivado correctamente' : 'Cliente activado correctamente',
+          active
+            ? `El cliente ${customer.businessName} ahora está inactivo.`
+            : `El cliente ${customer.businessName} ahora está activo.`,
+        );
       },
       error: (error: HttpErrorResponse) => {
         void this.toast.error((error.error as ApiErrorResponse)?.message || 'No se pudo cambiar el estado.');

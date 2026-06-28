@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable, tap } from 'rxjs';
 
-import { apiEndpoints } from '../../../core/config/api-endpoints';
-import { TokenStorageService } from '../../../core/storage/token-storage.service';
+import { apiEndpoints } from '@core/config/api-endpoints';
+import { TokenStorageService } from '@core/storage/token-storage.service';
 import {
   AuthenticatedUserResponse,
   AuthSession,

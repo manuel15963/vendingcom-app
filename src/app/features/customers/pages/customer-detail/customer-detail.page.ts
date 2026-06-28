@@ -10,6 +10,7 @@ import {
   IonButtons,
   IonContent,
   IonHeader,
+  IonIcon,
   IonInput,
   IonModal,
   IonSelect,
@@ -19,10 +20,26 @@ import {
   IonToggle,
   IonToolbar,
 } from '@ionic/angular/standalone';
+import { addIcons } from 'ionicons';
+import {
+  briefcaseOutline,
+  callOutline,
+  documentTextOutline,
+  earthOutline,
+  homeOutline,
+  keypadOutline,
+  linkOutline,
+  mailOutline,
+  mapOutline,
+  navigateOutline,
+  personOutline,
+  pricetagOutline,
+} from 'ionicons/icons';
 
-import { ToastService } from '../../../../core/feedback/toast.service';
-import { ApiErrorResponse } from '../../../../shared/models/api-response.models';
-import { ConfirmDialogComponent } from '../../components/confirm-dialog/confirm-dialog.component';
+import { SuccessDialogService } from '@core/feedback/success-dialog.service';
+import { ToastService } from '@core/feedback/toast.service';
+import { ApiErrorResponse } from '@shared/models/api-response.models';
+import { ConfirmDialogComponent } from '@shared/ui/confirm-dialog/confirm-dialog.component';
 import { CustomerFormModalComponent } from '../../components/customer-form-modal/customer-form-modal.component';
 import { CustomerAddressesApiService } from '../../data-access/customer-addresses-api.service';
 import { CustomerCatalogApiService } from '../../data-access/customer-catalog-api.service';
@@ -36,6 +53,10 @@ import {
   CustomerDocumentResponse,
   CustomerParameter,
 } from '../../models/customer.models';
+import { CustomerTypeCode, DocumentTypeCode, ParameterGroup, StatusLabel } from '../../models/customer.constants';
+import { validateDocumentNumber } from '../../util/document-number.validator';
+import { AvatarComponent } from '@shared/ui/avatar/avatar.component';
+import { StatusPillComponent } from '@shared/ui/status-pill/status-pill.component';
 
 type Segment = 'info' | 'contacts' | 'addresses' | 'documents';
 
@@ -48,10 +69,12 @@ type Segment = 'info' | 'contacts' | 'addresses' | 'documents';
     CommonModule,
     FormsModule,
     IonHeader, IonToolbar, IonTitle, IonButtons, IonBackButton, IonButton,
-    IonContent, IonSpinner, IonModal, IonInput,
+    IonContent, IonSpinner, IonModal, IonInput, IonIcon,
     IonSelect, IonSelectOption, IonToggle,
     CustomerFormModalComponent,
     ConfirmDialogComponent,
+    AvatarComponent,
+    StatusPillComponent,
   ],
 })
 export class CustomerDetailPage implements OnInit {
@@ -63,6 +86,7 @@ export class CustomerDetailPage implements OnInit {
   private readonly catalogApi = inject(CustomerCatalogApiService);
   private readonly route = inject(ActivatedRoute);
   private readonly toast = inject(ToastService);
+  private readonly success = inject(SuccessDialogService);
 
   customerId!: number;
   detail?: CustomerDetailResponse;
@@ -95,10 +119,23 @@ export class CustomerDetailPage implements OnInit {
 
   saving = false;
 
+  constructor() {
+    addIcons({
+      personOutline, briefcaseOutline, mailOutline, callOutline,
+      pricetagOutline, homeOutline, mapOutline, earthOutline, navigateOutline,
+      documentTextOutline, keypadOutline, linkOutline,
+    });
+  }
+
+  /** Nombre del cliente, para los mensajes del modal de éxito. */
+  get customerName(): string {
+    return this.detail?.customer.businessName ?? 'el cliente';
+  }
+
   ngOnInit(): void {
     this.customerId = Number(this.route.snapshot.paramMap.get('id'));
-    this.catalogApi.getByGroup('ADDRESS_TYPE').subscribe({ next: (t) => (this.addressTypes = t) });
-    this.catalogApi.getByGroup('DOCUMENT_TYPE').subscribe({ next: (t) => (this.documentTypes = t) });
+    this.catalogApi.getByGroup(ParameterGroup.ADDRESS_TYPE).subscribe({ next: (t) => (this.addressTypes = t) });
+    this.catalogApi.getByGroup(ParameterGroup.DOCUMENT_TYPE).subscribe({ next: (t) => (this.documentTypes = t) });
     this.load();
   }
 
@@ -136,12 +173,7 @@ export class CustomerDetailPage implements OnInit {
   }
 
   isActive(statusName?: string): boolean {
-    return statusName === 'ACTIVO';
-  }
-
-  initials(name?: string): string {
-    const words = (name || '').trim().split(/\s+/).slice(0, 2);
-    return words.map((w) => w[0]?.toUpperCase() || '').join('') || 'C';
+    return statusName === StatusLabel.ACTIVE;
   }
 
   // ---------- CONTACTOS ----------
@@ -182,10 +214,18 @@ export class CustomerDetailPage implements OnInit {
       phone: this.contactForm.phone.trim() || undefined,
       isPrimary: this.contactForm.isPrimary,
     };
+    const editing = this.editingContactId != null;
     const obs = this.editingContactId
       ? this.contactsApi.update(this.customerId, this.editingContactId, req)
       : this.contactsApi.create(this.customerId, req);
-    this.handleSave(obs, 'Contacto guardado.', () => (this.contactModalOpen = false));
+    this.handleSave(
+      obs,
+      editing ? 'Contacto actualizado correctamente' : 'Contacto guardado correctamente',
+      editing
+        ? 'Los datos del contacto se actualizaron correctamente.'
+        : `El contacto fue registrado correctamente para el cliente ${this.customerName}.`,
+      () => (this.contactModalOpen = false),
+    );
   }
 
   askToggleContact(contact: CustomerContactResponse): void {
@@ -206,7 +246,11 @@ export class CustomerDetailPage implements OnInit {
     const obs: Observable<unknown> = active
       ? this.contactsApi.deactivate(this.customerId, contact.contactId)
       : this.contactsApi.activate(this.customerId, contact.contactId);
-    this.handleAction(obs);
+    this.handleAction(
+      obs,
+      active ? 'Contacto desactivado correctamente' : 'Contacto activado correctamente',
+      active ? `El contacto "${contact.fullName}" ahora está inactivo.` : `El contacto "${contact.fullName}" ahora está activo.`,
+    );
   }
 
   // ---------- DIRECCIONES ----------
@@ -253,10 +297,18 @@ export class CustomerDetailPage implements OnInit {
       reference: this.addressForm.reference.trim() || undefined,
       isPrimary: this.addressForm.isPrimary,
     };
+    const editing = this.editingAddressId != null;
     const obs = this.editingAddressId
       ? this.addressesApi.update(this.customerId, this.editingAddressId, req)
       : this.addressesApi.create(this.customerId, req);
-    this.handleSave(obs, 'Dirección guardada.', () => (this.addressModalOpen = false));
+    this.handleSave(
+      obs,
+      editing ? 'Dirección actualizada correctamente' : 'Dirección guardada correctamente',
+      editing
+        ? 'Los datos de la dirección se actualizaron correctamente.'
+        : `La dirección fue registrada correctamente para el cliente ${this.customerName}.`,
+      () => (this.addressModalOpen = false),
+    );
   }
 
   askToggleAddress(address: CustomerAddressResponse): void {
@@ -277,10 +329,51 @@ export class CustomerDetailPage implements OnInit {
     const obs: Observable<unknown> = active
       ? this.addressesApi.deactivate(this.customerId, address.addressId)
       : this.addressesApi.activate(this.customerId, address.addressId);
-    this.handleAction(obs);
+    this.handleAction(
+      obs,
+      active ? 'Dirección desactivada correctamente' : 'Dirección activada correctamente',
+      active ? `La dirección "${address.addressTypeName}" ahora está inactiva.` : `La dirección "${address.addressTypeName}" ahora está activa.`,
+    );
   }
 
   // ---------- DOCUMENTOS ----------
+  /** Tipos permitidos por el tipo de cliente (empresa/institución → RUC, persona → DNI/CE/Pasaporte). */
+  private documentTypesByCustomer(): CustomerParameter[] {
+    const personCodes: string[] = [DocumentTypeCode.DNI, DocumentTypeCode.CE, DocumentTypeCode.PASAPORTE];
+    const isPerson = this.detail?.customer.customerTypeName === CustomerTypeCode.PERSONA;
+    return this.documentTypes.filter((t) =>
+      isPerson ? personCodes.includes(t.parameterCode) : t.parameterCode === DocumentTypeCode.RUC,
+    );
+  }
+
+  /** Tipos para el modal: por tipo de cliente y SIN los ya registrados (salvo el que se está editando). */
+  get availableDocumentTypes(): CustomerParameter[] {
+    const used = new Set(
+      (this.detail?.documents ?? [])
+        .filter((d) => d.documentId !== this.editingDocumentId)
+        .map((d) => d.documentTypeId),
+    );
+    return this.documentTypesByCustomer().filter((t) => !used.has(t.parameterId));
+  }
+
+  /** ¿Queda algún tipo de documento por registrar? (habilita el botón Agregar). */
+  get canAddDocument(): boolean {
+    const used = new Set((this.detail?.documents ?? []).map((d) => d.documentTypeId));
+    return this.documentTypesByCustomer().some((t) => !used.has(t.parameterId));
+  }
+
+  /** Error de formato del número según el tipo seleccionado (null = válido). Lógica en el util. */
+  get documentNumberError(): string | null {
+    const code = this.documentTypes.find((t) => t.parameterId === this.documentForm.documentTypeId)?.parameterCode;
+    return validateDocumentNumber(code, this.documentForm.documentNumber);
+  }
+
+  get canSaveDocument(): boolean {
+    return !!this.documentForm.documentNumber.trim()
+      && this.documentForm.documentTypeId != null
+      && this.documentNumberError === null;
+  }
+
   openDocumentModal(document?: CustomerDocumentResponse): void {
     this.editingDocumentId = document?.documentId ?? null;
     this.documentForm = {
@@ -289,6 +382,13 @@ export class CustomerDetailPage implements OnInit {
       fileUrl: document?.fileUrl ?? '',
       isPrimary: document?.isPrimary ?? false,
     };
+    // Si es nuevo y solo hay un tipo válido (ej. RUC para empresa), lo preseleccionamos.
+    if (!document && this.documentForm.documentTypeId == null) {
+      const available = this.availableDocumentTypes;
+      if (available.length === 1) {
+        this.documentForm.documentTypeId = available[0].parameterId;
+      }
+    }
     this.documentModalOpen = true;
   }
 
@@ -316,10 +416,18 @@ export class CustomerDetailPage implements OnInit {
       fileUrl: this.documentForm.fileUrl.trim() || undefined,
       isPrimary: this.documentForm.isPrimary,
     };
+    const editing = this.editingDocumentId != null;
     const obs = this.editingDocumentId
       ? this.documentsApi.update(this.customerId, this.editingDocumentId, req)
       : this.documentsApi.create(this.customerId, req);
-    this.handleSave(obs, 'Documento guardado.', () => (this.documentModalOpen = false));
+    this.handleSave(
+      obs,
+      editing ? 'Documento actualizado correctamente' : 'Documento guardado correctamente',
+      editing
+        ? 'Los datos del documento se actualizaron correctamente.'
+        : `El documento fue registrado correctamente para el cliente ${this.customerName}.`,
+      () => (this.documentModalOpen = false),
+    );
   }
 
   askToggleDocument(document: CustomerDocumentResponse): void {
@@ -340,7 +448,11 @@ export class CustomerDetailPage implements OnInit {
     const obs: Observable<unknown> = active
       ? this.documentsApi.deactivate(this.customerId, document.documentId)
       : this.documentsApi.activate(this.customerId, document.documentId);
-    this.handleAction(obs);
+    this.handleAction(
+      obs,
+      active ? 'Documento desactivado correctamente' : 'Documento activado correctamente',
+      active ? `El documento "${document.documentTypeName}" ahora está inactivo.` : `El documento "${document.documentTypeName}" ahora está activo.`,
+    );
   }
 
   // ---------- confirmación ----------
@@ -374,13 +486,13 @@ export class CustomerDetailPage implements OnInit {
   }
 
   // ---------- helpers ----------
-  private handleSave(obs: Observable<unknown>, successMsg: string, closeModal: () => void): void {
+  private handleSave(obs: Observable<unknown>, successTitle: string, successMessage: string, closeModal: () => void): void {
     obs.subscribe({
       next: () => {
         this.saving = false;
         closeModal();
-        void this.toast.success(successMsg);
         this.reloadSilent();
+        this.success.show(successTitle, successMessage);
       },
       error: (error: HttpErrorResponse) => {
         this.saving = false;
@@ -389,11 +501,11 @@ export class CustomerDetailPage implements OnInit {
     });
   }
 
-  private handleAction(obs: Observable<unknown>): void {
+  private handleAction(obs: Observable<unknown>, successTitle: string, successMessage: string): void {
     obs.subscribe({
       next: () => {
-        void this.toast.success('Estado actualizado.');
         this.reloadSilent();
+        this.success.show(successTitle, successMessage);
       },
       error: (error: HttpErrorResponse) => {
         void this.toast.error((error.error as ApiErrorResponse)?.message || 'No se pudo cambiar el estado.');

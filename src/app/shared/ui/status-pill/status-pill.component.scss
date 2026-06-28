@@ -1,0 +1,15 @@
+:host { display: inline-flex; }
+
+.pill {
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  color: #64748b;
+  background: #eef2f7;
+  white-space: nowrap;
+
+  &.sm { padding: 5px 11px; font-size: 11px; }
+  &.on { color: #0f7a37; background: #dcfce7; }
+}
