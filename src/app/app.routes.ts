@@ -41,6 +41,16 @@ export const routes: Routes = [
     loadComponent: () => import('./features/admin/pages/admin-panel/admin-panel.page').then((m) => m.AdminPanelPage),
   },
   {
+    path: 'customers',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/customers/pages/customers-list/customers-list.page').then((m) => m.CustomersListPage),
+  },
+  {
+    path: 'customers/:id',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/customers/pages/customer-detail/customer-detail.page').then((m) => m.CustomerDetailPage),
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full',

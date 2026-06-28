@@ -34,7 +34,9 @@
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+/* Modo oscuro del sistema DESACTIVADO: la app usa siempre tema claro
+   (evita popovers/modales negros cuando el SO está en dark mode). */
+/* @import '@ionic/angular/css/palettes/dark.system.css'; */
 
 *,
 *::before,
