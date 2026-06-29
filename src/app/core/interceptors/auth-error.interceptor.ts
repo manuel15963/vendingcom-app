@@ -40,7 +40,9 @@ export const authErrorInterceptor: HttpInterceptorFn = (request, next) => {
 };
 
 function isApiRequest(url: string): boolean {
-  return url.startsWith(environment.apiUrl) || url.startsWith(environment.customerApiUrl);
+  return url.startsWith(environment.apiUrl)
+    || url.startsWith(environment.customerApiUrl)
+    || url.startsWith(environment.locationApiUrl);
 }
 
 function isPublicAuthRequest(url: string): boolean {

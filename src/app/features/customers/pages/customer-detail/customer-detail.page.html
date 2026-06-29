@@ -196,6 +196,12 @@
             <ion-icon slot="start" name="pricetag-outline" aria-hidden="true"></ion-icon>
             @for (t of addressTypes; track t.parameterId) { <ion-select-option [value]="t.parameterId">{{ t.parameterValue }}</ion-select-option> }
           </ion-select>
+
+          <div class="full map-field">
+            <span class="map-label">📍 Ubicación en el mapa <small>— busca y se autocompletan dirección, distrito, provincia y departamento</small></span>
+            <app-location-map-picker (picked)="onAddressLocationPicked($event)"></app-location-map-picker>
+          </div>
+
           <ion-input label="Dirección *" labelPlacement="stacked" fill="outline"
             placeholder="Av. / Calle / Jr." [(ngModel)]="addressForm.addressLine">
             <ion-icon slot="start" name="home-outline" aria-hidden="true"></ion-icon>

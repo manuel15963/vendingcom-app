@@ -1,0 +1,29 @@
+<div class="map-picker">
+  @if (loadError) {
+    <div class="map-hint">{{ loadError }}</div>
+  } @else {
+    @if (!readOnly) {
+      <input
+        #searchInput
+        type="text"
+        class="map-search"
+        [class.hidden]="loading"
+        placeholder="Busca un lugar o dirección…" />
+    }
+
+    <div class="map-canvas" [class.hidden]="loading" #mapEl></div>
+
+    @if (loading) {
+      <div class="map-loading">
+        <ion-spinner name="crescent"></ion-spinner>
+        <span>Cargando mapa…</span>
+      </div>
+    } @else if (readOnly) {
+      <button type="button" class="directions-btn" (click)="openDirections()">
+        🧭 Cómo llegar
+      </button>
+    } @else {
+      <p class="map-tip">Busca arriba, o toca/arrastra el pin para fijar el punto exacto.</p>
+    }
+  }
+</div>

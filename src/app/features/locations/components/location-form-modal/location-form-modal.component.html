@@ -1,0 +1,137 @@
+<ion-modal class="form-modal" [isOpen]="open" (didDismiss)="closed.emit()">
+  <ng-template>
+    <div class="modal-shell">
+      <div class="modal-top">
+        <h3>{{ title }}</h3>
+        <button class="modal-close" (click)="close()" aria-label="Cerrar">✕</button>
+      </div>
+
+      <div class="modal-body">
+        @if (loading) {
+          <div class="loading"><ion-spinner name="crescent"></ion-spinner></div>
+        } @else {
+          <p class="hint">Sede o punto de venta de un cliente. Los campos con * son obligatorios.</p>
+
+          <div class="form-grid">
+            @if (!isEdit && lockedCustomerId == null) {
+              <ion-select class="full" label="Cliente *" labelPlacement="stacked" fill="outline"
+                [(ngModel)]="form.customerId" name="customerId" interface="alert"
+                placeholder="Seleccione el cliente">
+                <ion-icon slot="start" name="business-outline" aria-hidden="true"></ion-icon>
+                @for (c of customers; track c.customerId) {
+                  <ion-select-option [value]="c.customerId">{{ c.businessName }}</ion-select-option>
+                }
+              </ion-select>
+            }
+
+            <ion-input class="full" label="Nombre de la ubicación *" labelPlacement="stacked" fill="outline"
+              placeholder="Ej. Sede Central, Local Plaza Norte"
+              [(ngModel)]="form.locationName" name="locationName" maxlength="150">
+              <ion-icon slot="start" name="storefront-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
+
+            <ion-select label="Tipo *" labelPlacement="stacked" fill="outline"
+              [(ngModel)]="form.locationTypeId" name="locationTypeId" interface="popover"
+              placeholder="Seleccione el tipo">
+              <ion-icon slot="start" name="pricetag-outline" aria-hidden="true"></ion-icon>
+              @for (type of locationTypes; track type.parameterId) {
+                <ion-select-option [value]="type.parameterId">{{ type.parameterValue }}</ion-select-option>
+              }
+            </ion-select>
+
+            <ion-select label="Zona" labelPlacement="stacked" fill="outline"
+              [(ngModel)]="form.zoneId" name="zoneId" interface="popover"
+              placeholder="Seleccione la zona">
+              <ion-icon slot="start" name="map-outline" aria-hidden="true"></ion-icon>
+              @for (zone of zones; track zone.parameterId) {
+                <ion-select-option [value]="zone.parameterId">{{ zone.parameterValue }}</ion-select-option>
+              }
+            </ion-select>
+
+            <div class="full map-field">
+              <span class="map-label">📍 Ubicación en el mapa <small>— busca o toca el mapa y se autocompletan dirección y coordenadas</small></span>
+              <app-location-map-picker
+                [latitude]="form.latitude"
+                [longitude]="form.longitude"
+                (picked)="onLocationPicked($event)">
+              </app-location-map-picker>
+            </div>
+
+            <ion-input class="full" label="Dirección *" labelPlacement="stacked" fill="outline"
+              placeholder="Av. / Calle / Jr. y número"
+              [(ngModel)]="form.addressLine" name="addressLine" maxlength="200">
+              <ion-icon slot="start" name="home-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
+
+            <ion-input label="Distrito" labelPlacement="stacked" fill="outline"
+              placeholder="Distrito" [(ngModel)]="form.district" name="district" maxlength="100">
+              <ion-icon slot="start" name="navigate-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
+
+            <ion-input label="Provincia" labelPlacement="stacked" fill="outline"
+              placeholder="Provincia" [(ngModel)]="form.province" name="province" maxlength="100">
+              <ion-icon slot="start" name="navigate-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
+
+            <ion-input label="Departamento" labelPlacement="stacked" fill="outline"
+              placeholder="Departamento" [(ngModel)]="form.department" name="department" maxlength="100">
+              <ion-icon slot="start" name="navigate-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
+
+            <ion-input label="País" labelPlacement="stacked" fill="outline"
+              placeholder="País" [(ngModel)]="form.country" name="country" maxlength="100">
+              <ion-icon slot="start" name="earth-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
+
+            <ion-input label="Código postal" labelPlacement="stacked" fill="outline"
+              placeholder="Código postal (opcional)" [(ngModel)]="form.postalCode" name="postalCode" maxlength="20">
+              <ion-icon slot="start" name="keypad-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
+
+            <ion-input label="Referencia" labelPlacement="stacked" fill="outline"
+              placeholder="Cerca de…" [(ngModel)]="form.reference" name="reference" maxlength="255">
+              <ion-icon slot="start" name="information-circle-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
+
+            <ion-input label="Latitud" labelPlacement="stacked" fill="outline" type="number"
+              placeholder="-12.0464" [(ngModel)]="form.latitude" name="latitude">
+              <ion-icon slot="start" name="locate-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
+
+            <ion-input label="Longitud" labelPlacement="stacked" fill="outline" type="number"
+              placeholder="-77.0428" [(ngModel)]="form.longitude" name="longitude">
+              <ion-icon slot="start" name="locate-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
+
+            @if (geoError) {
+              <small class="field-error full">{{ geoError }}</small>
+            }
+          </div>
+
+          @if (errorMessage) {
+            <div class="error-box">{{ errorMessage }}</div>
+          }
+
+          <button class="primary-btn" [disabled]="saving || !canSubmit" (click)="save()">
+            @if (saving) {
+              <ion-spinner name="crescent"></ion-spinner>
+              <span>Guardando…</span>
+            } @else {
+              {{ isEdit ? 'Guardar cambios' : 'Crear ubicación' }}
+            }
+          </button>
+        }
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- Confirmación al guardar una edición -->
+<app-confirm-dialog
+  [open]="editConfirmOpen"
+  title="¿Guardar cambios?"
+  message="Se actualizarán los datos de esta ubicación."
+  confirmText="Guardar cambios"
+  (confirmed)="onEditConfirm()"
+  (cancelled)="editConfirmOpen = false">
+</app-confirm-dialog>

@@ -117,6 +117,28 @@
   h2 { margin: 0; font-size: 16px; font-weight: 800; color: #0b1736; }
 }
 
+/* ---- Mapa de solo lectura en la ficha ---- */
+.map-view {
+  margin-top: 14px;
+  padding: 8px;
+  background: #ffffff;
+  border: 1px solid #e4ebf5;
+  border-radius: 16px;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.05);
+}
+
+.map-empty {
+  margin-top: 14px;
+  padding: 16px;
+  text-align: center;
+  background: #f8fafc;
+  border: 1px dashed #d7e0ee;
+  border-radius: 16px;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 600;
+}
+
 .add-btn {
   border: 0;
   cursor: pointer;
@@ -143,20 +165,6 @@
   font-weight: 700;
 }
 
-.map-field {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.map-label {
-  font-size: 13px;
-  font-weight: 800;
-  color: #0b1736;
-
-  small { color: #94a3b8; font-weight: 600; }
-}
-
 .cards { display: flex; flex-direction: column; gap: 10px; }
 
 .row-card {
@@ -178,6 +186,7 @@
     flex: 1;
 
     strong { font-size: 14.5px; font-weight: 800; color: #0b1736; }
+    strong.muted { color: #94a3b8; font-weight: 700; }
     small {
       color: #64748b;
       font-size: 12.5px;
@@ -186,6 +195,24 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+  }
+}
+
+/* ---- Píldora del día (horarios) ---- */
+.day-pill {
+  flex-shrink: 0;
+  min-width: 92px;
+  text-align: center;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #0059d8;
+  background: #e3edff;
+
+  &.closed {
+    color: #94a3b8;
+    background: #eef2f8;
   }
 }
 
@@ -375,6 +402,7 @@ ion-modal.form-modal {
   .row-card { padding: 12px 13px; gap: 10px 8px; flex-wrap: wrap; }
   .row-card .info { flex: 1 1 100%; }
   .row-card .info strong { font-size: 13.5px; }
+  .day-pill { min-width: 78px; font-size: 12px; }
   .row-actions { width: 100%; }
   .act-btn { flex: 1; text-align: center; }
 

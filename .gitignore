@@ -42,6 +42,10 @@ testem.log
 # Environment / secrets
 *.env
 .env.*
+.env
+# Generados por scripts/set-env.js (la API key sale de GOOGLE_MAPS_API_KEY, no se versiona)
+/src/environments/environment.ts
+/src/environments/environment.prod.ts
 
 # System files
 .DS_Store

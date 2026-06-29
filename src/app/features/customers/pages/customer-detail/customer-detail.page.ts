@@ -57,6 +57,7 @@ import { CustomerTypeCode, DocumentTypeCode, ParameterGroup, StatusLabel } from 
 import { validateDocumentNumber } from '../../util/document-number.validator';
 import { AvatarComponent } from '@shared/ui/avatar/avatar.component';
 import { StatusPillComponent } from '@shared/ui/status-pill/status-pill.component';
+import { LocationMapPickerComponent, PickedLocation } from '../../../locations/components/location-map-picker/location-map-picker.component';
 
 type Segment = 'info' | 'contacts' | 'addresses' | 'documents';
 
@@ -75,6 +76,7 @@ type Segment = 'info' | 'contacts' | 'addresses' | 'documents';
     ConfirmDialogComponent,
     AvatarComponent,
     StatusPillComponent,
+    LocationMapPickerComponent,
   ],
 })
 export class CustomerDetailPage implements OnInit {
@@ -267,6 +269,15 @@ export class CustomerDetailPage implements OnInit {
       isPrimary: address?.isPrimary ?? false,
     };
     this.addressModalOpen = true;
+  }
+
+  /** El mapa eligió un punto: autocompleta los campos de la dirección del cliente. */
+  onAddressLocationPicked(loc: PickedLocation): void {
+    if (loc.addressLine) this.addressForm.addressLine = loc.addressLine;
+    if (loc.district) this.addressForm.district = loc.district;
+    if (loc.province) this.addressForm.province = loc.province;
+    if (loc.department) this.addressForm.department = loc.department;
+    if (loc.country) this.addressForm.country = loc.country;
   }
 
   saveAddress(): void {
