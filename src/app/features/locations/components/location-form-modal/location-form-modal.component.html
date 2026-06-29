@@ -48,6 +48,15 @@
               }
             </ion-select>
 
+            <div class="full map-field">
+              <span class="map-label">📍 Ubicación en el mapa <small>— busca o toca el mapa y se autocompletan dirección y coordenadas</small></span>
+              <app-location-map-picker
+                [latitude]="form.latitude"
+                [longitude]="form.longitude"
+                (picked)="onLocationPicked($event)">
+              </app-location-map-picker>
+            </div>
+
             <ion-input class="full" label="Dirección *" labelPlacement="stacked" fill="outline"
               placeholder="Av. / Calle / Jr. y número"
               [(ngModel)]="form.addressLine" name="addressLine" maxlength="200">

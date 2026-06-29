@@ -5,6 +5,7 @@
     </ion-buttons>
     <ion-title>Ubicaciones</ion-title>
     <ion-buttons slot="end">
+      <ion-button class="new-btn" (click)="goToMap()">🗺️ Mapa</ion-button>
       <ion-button class="new-btn" (click)="newLocation()">+ Nueva</ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -24,6 +25,10 @@
       <button class="search-btn" (click)="applySearch()">Buscar</button>
     </div>
 
+    <button class="near-btn" [class.active]="!!myPos" (click)="nearMe()">
+      📍 {{ myPos ? 'Ordenado por cercanía · quitar' : 'Cerca de mí' }}
+    </button>
+
     @if (loading) {
       <div class="center"><ion-spinner name="crescent"></ion-spinner></div>
     } @else if (errorMessage) {
@@ -41,7 +46,7 @@
             <app-avatar [name]="l.locationName"></app-avatar>
             <span class="info">
               <strong>{{ l.locationName }}</strong>
-              <small>{{ subtitle(l) }}</small>
+              <small>{{ subtitle(l) }}@if (distanceLabel(l)) { · {{ distanceLabel(l) }} }</small>
             </span>
             <app-status-pill
               size="sm"

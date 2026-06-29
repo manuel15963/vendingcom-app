@@ -28,6 +28,7 @@ import { SuccessDialogService } from '@core/feedback/success-dialog.service';
 import { ToastService } from '@core/feedback/toast.service';
 import { ApiErrorResponse } from '@shared/models/api-response.models';
 import { ConfirmDialogComponent } from '@shared/ui/confirm-dialog/confirm-dialog.component';
+import { LocationMapPickerComponent, PickedLocation } from '../location-map-picker/location-map-picker.component';
 import { CustomersApiService } from '../../../customers/data-access/customers-api.service';
 import { CustomerResponse } from '../../../customers/models/customer.models';
 import { LocationCatalogApiService } from '../../data-access/location-catalog-api.service';
@@ -45,7 +46,7 @@ import { ParameterGroup } from '../../models/location.constants';
   templateUrl: './location-form-modal.component.html',
   styleUrls: ['./location-form-modal.component.scss'],
   standalone: true,
-  imports: [CommonModule, FormsModule, IonModal, IonInput, IonSelect, IonSelectOption, IonSpinner, IonIcon, ConfirmDialogComponent],
+  imports: [CommonModule, FormsModule, IonModal, IonInput, IonSelect, IonSelectOption, IonSpinner, IonIcon, ConfirmDialogComponent, LocationMapPickerComponent],
 })
 export class LocationFormModalComponent implements OnChanges {
 
@@ -190,6 +191,18 @@ export class LocationFormModalComponent implements OnChanges {
   onEditConfirm(): void {
     this.editConfirmOpen = false;
     this.persist();
+  }
+
+  /** El mapa eligió un punto: rellena coordenadas y dirección (los campos siguen editables). */
+  onLocationPicked(loc: PickedLocation): void {
+    this.form.latitude = loc.latitude;
+    this.form.longitude = loc.longitude;
+    if (loc.addressLine) this.form.addressLine = loc.addressLine;
+    if (loc.district) this.form.district = loc.district;
+    if (loc.province) this.form.province = loc.province;
+    if (loc.department) this.form.department = loc.department;
+    if (loc.country) this.form.country = loc.country;
+    if (loc.postalCode) this.form.postalCode = loc.postalCode;
   }
 
   private toNumber(value: number | null): number | undefined {

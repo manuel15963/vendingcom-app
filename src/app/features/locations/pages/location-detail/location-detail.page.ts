@@ -38,6 +38,7 @@ import { ConfirmDialogComponent } from '@shared/ui/confirm-dialog/confirm-dialog
 import { StatusPillComponent } from '@shared/ui/status-pill/status-pill.component';
 import { CustomersApiService } from '../../../customers/data-access/customers-api.service';
 import { LocationFormModalComponent } from '../../components/location-form-modal/location-form-modal.component';
+import { LocationMapPickerComponent } from '../../components/location-map-picker/location-map-picker.component';
 import { LocationContactsApiService } from '../../data-access/location-contacts-api.service';
 import { LocationSchedulesApiService } from '../../data-access/location-schedules-api.service';
 import { LocationsApiService } from '../../data-access/locations-api.service';
@@ -62,6 +63,7 @@ type Segment = 'info' | 'contacts' | 'schedules';
     IonContent, IonSpinner, IonModal, IonInput, IonIcon,
     IonSelect, IonSelectOption, IonToggle,
     LocationFormModalComponent,
+    LocationMapPickerComponent,
     ConfirmDialogComponent,
     AvatarComponent,
     StatusPillComponent,

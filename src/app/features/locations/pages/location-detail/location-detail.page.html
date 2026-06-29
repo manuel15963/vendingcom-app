@@ -57,6 +57,18 @@
             </strong>
           </div>
         </div>
+
+        @if (detail.location.latitude != null && detail.location.longitude != null) {
+          <div class="map-view">
+            <app-location-map-picker
+              [latitude]="detail.location.latitude"
+              [longitude]="detail.location.longitude"
+              [readOnly]="true">
+            </app-location-map-picker>
+          </div>
+        } @else {
+          <div class="map-empty">📍 Esta ubicación aún no tiene un punto en el mapa. Edítala y márcalo para verlo aquí.</div>
+        }
       }
 
       <!-- CONTACTOS -->

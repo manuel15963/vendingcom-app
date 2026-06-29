@@ -1,0 +1,136 @@
+:host {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.app-header ion-toolbar {
+  --background: var(--brand-grad-header);
+  --color: #ffffff;
+  --border-width: 0;
+}
+
+.app-header ion-title { font-weight: 800; }
+.app-header ion-back-button,
+.hdr-btn { --color: #ffffff; }
+.hdr-btn { font-weight: 800; text-transform: none; }
+
+.page-bg { --background: #eaf0f9; }
+
+/* Mapa a pantalla completa dentro del contenido */
+.map-wrap {
+  position: absolute;
+  inset: 0;
+}
+
+.map-full {
+  width: 100%;
+  height: 100%;
+}
+
+.map-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #64748b;
+  font-size: 13px;
+  background: #eaf0f9;
+}
+
+.state.error {
+  margin: 24px;
+  text-align: center;
+  color: var(--ion-color-danger);
+  font-weight: 600;
+}
+
+/* Filtro por zona (chips arriba) */
+.zone-filter {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px;
+  z-index: 3;
+
+  &::-webkit-scrollbar { display: none; }
+
+  button {
+    flex: 0 0 auto;
+    border: 0;
+    cursor: pointer;
+    font: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #475569;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18);
+    transition: filter 0.15s ease;
+
+    &.active { background: var(--brand-grad-btn); color: #ffffff; }
+    &:hover { filter: brightness(0.97); }
+  }
+}
+
+/* Botón flotante "Mi ubicación" */
+.locate-fab {
+  position: absolute;
+  right: 16px;
+  bottom: 26px;
+  width: 48px;
+  height: 48px;
+  border: 0;
+  border-radius: 50%;
+  cursor: pointer;
+  background: #ffffff;
+  color: #126fff;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.22);
+  display: grid;
+  place-items: center;
+  transition: filter 0.15s ease;
+
+  ion-icon { font-size: 22px; }
+  &:hover { filter: brightness(0.97); }
+}
+
+/* Leyenda */
+.map-legend {
+  position: absolute;
+  left: 16px;
+  bottom: 26px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 8px 12px;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.14);
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+
+  .dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+
+  .dot.green { background: #16a34a; }
+  .dot.gray { background: #94a3b8; }
+  .muted { color: #94a3b8; font-weight: 600; }
+}
+
+@media (max-width: 480px) {
+  .map-legend { left: 12px; bottom: 20px; gap: 8px; padding: 7px 10px; font-size: 11px; }
+  .locate-fab { right: 12px; bottom: 20px; }
+}

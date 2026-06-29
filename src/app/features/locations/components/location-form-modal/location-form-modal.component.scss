@@ -118,6 +118,20 @@ ion-modal.form-modal {
   font-weight: 700;
 }
 
+.map-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.map-label {
+  font-size: 13px;
+  font-weight: 800;
+  color: #0b1736;
+
+  small { color: #94a3b8; font-weight: 600; }
+}
+
 .error-box {
   padding: 12px 14px;
   border-radius: 12px;

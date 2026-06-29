@@ -1,0 +1,52 @@
+<ion-header class="app-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/locations"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Mapa de ubicaciones</ion-title>
+    <ion-buttons slot="end">
+      <ion-button class="hdr-btn" (click)="goToList()">
+        <ion-icon name="list-outline" slot="start"></ion-icon>
+        Lista
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-bg">
+  @if (loadError) {
+    <div class="state error">{{ loadError }}</div>
+  } @else {
+    <div class="map-wrap">
+      <div class="map-full" #mapEl></div>
+
+      @if (loading) {
+        <div class="map-loading">
+          <ion-spinner name="crescent"></ion-spinner>
+          <span>Cargando mapa…</span>
+        </div>
+      } @else {
+        @if (zones.length > 1) {
+          <div class="zone-filter">
+            <button [class.active]="selectedZoneId === null" (click)="filterZone(null)">Todas</button>
+            @for (z of zones; track z.parameterId) {
+              <button [class.active]="selectedZoneId === z.parameterId" (click)="filterZone(z.parameterId)">{{ z.parameterValue }}</button>
+            }
+          </div>
+        }
+
+        <button class="locate-fab" (click)="locateMe()" title="Mi ubicación" aria-label="Mi ubicación">
+          <ion-icon name="locate-outline"></ion-icon>
+        </button>
+
+        <div class="map-legend">
+          <span><i class="dot green"></i> Activa</span>
+          <span><i class="dot gray"></i> Inactiva</span>
+          @if (total > withCoords) {
+            <span class="muted">· {{ total - withCoords }} sin coordenadas</span>
+          }
+        </div>
+      }
+    </div>
+  }
+</ion-content>

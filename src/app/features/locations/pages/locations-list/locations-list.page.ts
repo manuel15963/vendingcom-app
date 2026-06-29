@@ -71,6 +71,9 @@ export class LocationsListPage implements OnInit {
   totalElements = 0;
   totalPages = 0;
 
+  /** Ubicación del usuario para calcular distancias (geolocalización del navegador, gratis). */
+  myPos: { lat: number; lng: number } | null = null;
+
   // Modal de crear/editar ubicación
   formModalOpen = false;
   editingLocationId: number | null = null;
@@ -89,6 +92,9 @@ export class LocationsListPage implements OnInit {
         this.totalElements = paged.totalElements;
         this.totalPages = paged.totalPages;
         this.loading = false;
+        if (this.myPos) {
+          this.sortByDistance();
+        }
       },
       error: (error: HttpErrorResponse) => {
         this.loading = false;
@@ -129,6 +135,68 @@ export class LocationsListPage implements OnInit {
   newLocation(): void {
     this.editingLocationId = null;
     this.formModalOpen = true;
+  }
+
+  goToMap(): void {
+    void this.router.navigateByUrl('/locations/map');
+  }
+
+  // ---------- Cerca de mí (distancia en línea recta, gratis) ----------
+  nearMe(): void {
+    if (this.myPos) {
+      // Segundo toque: desactivar y recargar el orden normal.
+      this.myPos = null;
+      this.load();
+      return;
+    }
+    if (!navigator.geolocation) {
+      void this.toast.error('Tu navegador no permite geolocalización.');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        this.myPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        this.sortByDistance();
+      },
+      () => void this.toast.error('No se pudo obtener tu ubicación. ¿Diste permiso?'),
+    );
+  }
+
+  private sortByDistance(): void {
+    if (!this.myPos) {
+      return;
+    }
+    this.locations = [...this.locations].sort((a, b) => {
+      const da = this.distanceKm(a);
+      const db = this.distanceKm(b);
+      if (da == null && db == null) return 0;
+      if (da == null) return 1;
+      if (db == null) return -1;
+      return da - db;
+    });
+  }
+
+  distanceKm(location: LocationResponse): number | null {
+    if (!this.myPos || location.latitude == null || location.longitude == null) {
+      return null;
+    }
+    const earthRadiusKm = 6371;
+    const dLat = ((location.latitude - this.myPos.lat) * Math.PI) / 180;
+    const dLon = ((location.longitude - this.myPos.lng) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos((this.myPos.lat * Math.PI) / 180) *
+        Math.cos((location.latitude * Math.PI) / 180) *
+        Math.sin(dLon / 2) ** 2;
+    return earthRadiusKm * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  distanceLabel(location: LocationResponse): string {
+    const km = this.distanceKm(location);
+    if (km == null) {
+      return '';
+    }
+    return km < 1 ? `a ${Math.round(km * 1000)} m` : `a ${km.toFixed(1)} km`;
   }
 
   editLocation(location: LocationResponse, event?: Event): void {
