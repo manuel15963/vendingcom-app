@@ -1,0 +1,80 @@
+<ion-header class="app-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/dashboard" text="Menú"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Ubicaciones</ion-title>
+    <ion-buttons slot="end">
+      <ion-button class="new-btn" (click)="newLocation()">+ Nueva</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-bg">
+  <div class="page">
+
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24" class="search-icon"><path d="M21 21l-4.3-4.3M11 19a8 8 0 1 1 0-16 8 8 0 0 1 0 16z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      <input
+        class="search-input"
+        [(ngModel)]="search"
+        name="search"
+        (keyup.enter)="applySearch()"
+        placeholder="Buscar por nombre, dirección o código..." />
+      <button class="search-btn" (click)="applySearch()">Buscar</button>
+    </div>
+
+    @if (loading) {
+      <div class="center"><ion-spinner name="crescent"></ion-spinner></div>
+    } @else if (errorMessage) {
+      <div class="state error">{{ errorMessage }}</div>
+    } @else if (locations.length === 0) {
+      <div class="state empty">
+        <span class="emoji">📍</span>
+        <p>No hay ubicaciones para mostrar.</p>
+        <button class="primary-btn" (click)="newLocation()">Registrar la primera</button>
+      </div>
+    } @else {
+      <div class="cards">
+        @for (l of locations; track l.locationId) {
+          <div class="location-card">
+            <app-avatar [name]="l.locationName"></app-avatar>
+            <span class="info">
+              <strong>{{ l.locationName }}</strong>
+              <small>{{ subtitle(l) }}</small>
+            </span>
+            <app-status-pill
+              size="sm"
+              [active]="isActive(l)"
+              [label]="l.locationStatusName || ''"
+              (click)="toggleStatus(l, $event)">
+            </app-status-pill>
+            <div class="row-actions">
+              <button class="icon-btn view" (click)="open(l)" aria-label="Ver ficha" title="Ver ficha">
+                <ion-icon name="eye-outline" aria-hidden="true"></ion-icon>
+              </button>
+              <button class="icon-btn edit" (click)="editLocation(l, $event)" aria-label="Editar ubicación" title="Editar">
+                <ion-icon name="create-outline" aria-hidden="true"></ion-icon>
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="pager">
+        <button class="page-btn" [disabled]="page === 0" (click)="prevPage()">‹</button>
+        <span>Página {{ page + 1 }} de {{ totalPages }} · {{ totalElements }} ubicaciones</span>
+        <button class="page-btn" [disabled]="page + 1 >= totalPages" (click)="nextPage()">›</button>
+      </div>
+    }
+
+  </div>
+</ion-content>
+
+<!-- Modal crear/editar ubicación -->
+<app-location-form-modal
+  [open]="formModalOpen"
+  [locationId]="editingLocationId"
+  (closed)="formModalOpen = false"
+  (saved)="onFormSaved()">
+</app-location-form-modal>

@@ -1,0 +1,220 @@
+<ion-header class="app-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/locations"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Ficha de la ubicación</ion-title>
+    <ion-buttons slot="end">
+      <ion-button class="edit-btn" (click)="editLocation()">Editar</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-bg">
+  @if (loading) {
+    <div class="center"><ion-spinner name="crescent"></ion-spinner></div>
+  } @else if (errorMessage) {
+    <div class="state error">{{ errorMessage }}</div>
+  } @else if (detail) {
+    <div class="page">
+
+      <!-- HERO -->
+      <div class="hero">
+        <app-avatar [name]="detail.location.locationName" size="lg"></app-avatar>
+        <h1>{{ detail.location.locationName }}</h1>
+        <p>{{ detail.location.locationTypeName }} @if (detail.location.locationCode) { · {{ detail.location.locationCode }} }</p>
+        <app-status-pill
+          [active]="isActive(detail.location.locationStatusName)"
+          [label]="detail.location.locationStatusName || ''">
+        </app-status-pill>
+      </div>
+
+      <!-- TABS -->
+      <div class="tabs">
+        <button [class.active]="segment === 'info'" (click)="segment = 'info'">Datos</button>
+        <button [class.active]="segment === 'contacts'" (click)="segment = 'contacts'">Contactos · {{ detail.contacts.length }}</button>
+        <button [class.active]="segment === 'schedules'" (click)="segment = 'schedules'">Horarios · {{ detail.schedules.length }}</button>
+      </div>
+
+      <!-- DATOS -->
+      @if (segment === 'info') {
+        <div class="card data-grid">
+          <div class="field"><span>Cliente</span><strong>{{ customerName || '—' }}</strong></div>
+          <div class="field"><span>Zona</span><strong>{{ detail.location.zoneName || '—' }}</strong></div>
+          <div class="field"><span>Dirección</span><strong>{{ detail.location.addressLine }}</strong></div>
+          <div class="field"><span>Distrito</span><strong>{{ detail.location.district || '—' }}</strong></div>
+          <div class="field"><span>Provincia</span><strong>{{ detail.location.province || '—' }}</strong></div>
+          <div class="field"><span>Departamento</span><strong>{{ detail.location.department || '—' }}</strong></div>
+          <div class="field"><span>País</span><strong>{{ detail.location.country || '—' }}</strong></div>
+          <div class="field"><span>Código postal</span><strong>{{ detail.location.postalCode || '—' }}</strong></div>
+          <div class="field"><span>Referencia</span><strong>{{ detail.location.reference || '—' }}</strong></div>
+          <div class="field">
+            <span>Coordenadas</span>
+            <strong>
+              @if (detail.location.latitude != null && detail.location.longitude != null) {
+                {{ detail.location.latitude }}, {{ detail.location.longitude }}
+              } @else { — }
+            </strong>
+          </div>
+        </div>
+      }
+
+      <!-- CONTACTOS -->
+      @if (segment === 'contacts') {
+        <div class="section-head">
+          <h2>Contactos</h2>
+          <button class="add-btn" (click)="openContactModal()">+ Agregar</button>
+        </div>
+        @if (detail.contacts.length === 0) {
+          <div class="state empty">Sin contactos registrados.</div>
+        } @else {
+          <div class="cards">
+            @for (c of detail.contacts; track c.contactId) {
+              <div class="row-card">
+                <span class="info">
+                  <strong>{{ c.fullName }} @if (c.isPrimary) { <span class="tag">Principal</span> }</strong>
+                  <small>{{ c.position || '—' }} · {{ c.email || 'sin correo' }} · {{ c.phone || 's/tel' }}</small>
+                </span>
+                <app-status-pill size="sm" [active]="isActive(c.contactStatusName)" [label]="c.contactStatusName || ''"></app-status-pill>
+                <div class="row-actions">
+                  <button class="act-btn edit" (click)="openContactModal(c)">Editar</button>
+                  @if (isActive(c.contactStatusName)) {
+                    <button class="act-btn off" (click)="askToggleContact(c)">Desactivar</button>
+                  } @else {
+                    <button class="act-btn on" (click)="askToggleContact(c)">Activar</button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <!-- HORARIOS -->
+      @if (segment === 'schedules') {
+        <div class="section-head">
+          <h2>Horarios de atención</h2>
+          @if (canAddSchedule) {
+            <button class="add-btn" (click)="openScheduleModal()">+ Agregar</button>
+          } @else {
+            <span class="add-hint">Los 7 días ya tienen horario</span>
+          }
+        </div>
+        @if (detail.schedules.length === 0) {
+          <div class="state empty">Sin horarios registrados.</div>
+        } @else {
+          <div class="cards">
+            @for (s of detail.schedules; track s.scheduleId) {
+              <div class="row-card">
+                <span class="day-pill" [class.closed]="s.isClosed">{{ dayName(s.dayOfWeek) }}</span>
+                <span class="info">
+                  <strong [class.muted]="s.isClosed">{{ scheduleText(s) }}</strong>
+                </span>
+                <div class="row-actions">
+                  <button class="act-btn edit" (click)="openScheduleModal(s)">Editar</button>
+                  <button class="act-btn off" (click)="askDeleteSchedule(s)">Eliminar</button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+
+    </div>
+  }
+</ion-content>
+
+<!-- ===== MODAL CONTACTO ===== -->
+<ion-modal class="form-modal" [isOpen]="contactModalOpen" (didDismiss)="contactModalOpen = false">
+  <ng-template>
+    <div class="modal-shell">
+      <div class="modal-top">
+        <h3>{{ editingContactId ? 'Editar contacto' : 'Nuevo contacto' }}</h3>
+        <button class="modal-close" (click)="contactModalOpen = false" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <ion-input label="Nombre completo *" labelPlacement="stacked" fill="outline"
+            placeholder="Ingrese el nombre completo" [(ngModel)]="contactForm.fullName">
+            <ion-icon slot="start" name="person-outline" aria-hidden="true"></ion-icon>
+          </ion-input>
+          <ion-input label="Cargo" labelPlacement="stacked" fill="outline"
+            placeholder="Ingrese el cargo" [(ngModel)]="contactForm.position">
+            <ion-icon slot="start" name="briefcase-outline" aria-hidden="true"></ion-icon>
+          </ion-input>
+          <ion-input label="Correo" labelPlacement="stacked" fill="outline" type="email"
+            placeholder="ejemplo@correo.com" [(ngModel)]="contactForm.email">
+            <ion-icon slot="start" name="mail-outline" aria-hidden="true"></ion-icon>
+          </ion-input>
+          <ion-input label="Teléfono" labelPlacement="stacked" fill="outline"
+            placeholder="Ingrese el teléfono" [(ngModel)]="contactForm.phone">
+            <ion-icon slot="start" name="call-outline" aria-hidden="true"></ion-icon>
+          </ion-input>
+          <ion-toggle class="full" labelPlacement="start" [(ngModel)]="contactForm.isPrimary">Marcar como principal</ion-toggle>
+        </div>
+        <button class="primary-btn" [disabled]="saving || !contactForm.fullName.trim()" (click)="saveContact()">Guardar contacto</button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- ===== MODAL HORARIO ===== -->
+<ion-modal class="form-modal" [isOpen]="scheduleModalOpen" (didDismiss)="scheduleModalOpen = false">
+  <ng-template>
+    <div class="modal-shell">
+      <div class="modal-top">
+        <h3>{{ editingScheduleId ? 'Editar horario' : 'Nuevo horario' }}</h3>
+        <button class="modal-close" (click)="scheduleModalOpen = false" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <ion-select class="full" label="Día *" labelPlacement="stacked" fill="outline"
+            [(ngModel)]="scheduleForm.dayOfWeek" interface="popover" placeholder="Selecciona el día"
+            [disabled]="editingScheduleId != null">
+            <ion-icon slot="start" name="calendar-outline" aria-hidden="true"></ion-icon>
+            @for (d of availableDays; track d.value) {
+              <ion-select-option [value]="d.value">{{ d.label }}</ion-select-option>
+            }
+          </ion-select>
+
+          <ion-toggle class="full" labelPlacement="start" [(ngModel)]="scheduleForm.isClosed">Cerrado todo el día</ion-toggle>
+
+          @if (!scheduleForm.isClosed) {
+            <ion-input label="Apertura *" labelPlacement="stacked" fill="outline" type="time"
+              [(ngModel)]="scheduleForm.openingTime">
+              <ion-icon slot="start" name="time-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
+            <ion-input label="Cierre *" labelPlacement="stacked" fill="outline" type="time"
+              [(ngModel)]="scheduleForm.closingTime">
+              <ion-icon slot="start" name="time-outline" aria-hidden="true"></ion-icon>
+            </ion-input>
+          }
+
+          @if (scheduleError) {
+            <small class="field-error full">{{ scheduleError }}</small>
+          }
+        </div>
+        <button class="primary-btn" [disabled]="saving || !canSaveSchedule" (click)="saveSchedule()">Guardar horario</button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- ===== MODAL EDITAR UBICACIÓN ===== -->
+<app-location-form-modal
+  [open]="editModalOpen"
+  [locationId]="locationId"
+  (closed)="editModalOpen = false"
+  (saved)="onEditSaved()">
+</app-location-form-modal>
+
+<!-- ===== DIÁLOGO DE CONFIRMACIÓN ===== -->
+<app-confirm-dialog
+  [open]="confirmState.open"
+  [title]="confirmState.title"
+  [message]="confirmState.message"
+  [confirmText]="confirmState.confirmText"
+  [variant]="confirmState.danger ? 'danger' : 'primary'"
+  (confirmed)="onConfirmAccept()"
+  (cancelled)="onConfirmCancel()">
+</app-confirm-dialog>

@@ -7,4 +7,6 @@ export interface Environment {
   apiUrl: string;
   /** customer-service. */
   customerApiUrl: string;
+  /** location-service. */
+  locationApiUrl: string;
 }

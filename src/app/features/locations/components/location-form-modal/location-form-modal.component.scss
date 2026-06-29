@@ -1,0 +1,166 @@
+:host {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* ---- Modal: tarjeta centrada con fondo difuminado ---- */
+ion-modal.form-modal {
+  --width: min(640px, calc(100% - 28px));
+  --height: auto;
+  --border-radius: 22px;
+  --background: #ffffff;
+  --box-shadow: 0 30px 90px rgba(11, 23, 51, 0.42);
+  /* Fondo borroso: solo el modal queda nítido, lo demás fuera de foco. */
+  --backdrop-opacity: 1;
+
+  &::part(backdrop) {
+    background: rgba(11, 23, 54, 0.4);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  &::part(content) {
+    border-radius: 22px;
+    overflow: hidden;
+  }
+
+  /* receta de Ionic para que el alto se ajuste al contenido */
+  .ion-page {
+    position: relative;
+    display: block;
+    contain: content;
+  }
+}
+
+.modal-shell {
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.modal-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px 18px;
+  background: var(--brand-grad-header);
+  color: #ffffff;
+
+  h3 { margin: 0; font-size: 16px; font-weight: 800; }
+
+  .modal-close {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 9px;
+    cursor: pointer;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 800;
+    background: rgba(255, 255, 255, 0.16);
+    transition: background 0.15s ease;
+
+    &:hover { background: rgba(255, 255, 255, 0.30); }
+  }
+}
+
+.modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px;
+  overflow-y: auto;
+}
+
+.hint {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.loading { display: flex; justify-content: center; padding: 32px 0; }
+
+/* ---- Formulario en 2 columnas (como la maqueta) ---- */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 14px;
+}
+
+.form-grid .full {
+  grid-column: 1 / -1;
+}
+
+.form-grid ion-input,
+.form-grid ion-select {
+  --border-radius: 12px;
+  --border-color: #d7e0ee;
+  --border-color-focused: #126fff;
+  --highlight-color-focused: #126fff;
+  --highlight-color-valid: #126fff;
+  --highlight-color-invalid: #dc2626;
+  --color: #0b1736;
+  --placeholder-color: #9aa7bd;
+  font-size: 15px;
+}
+
+.form-grid ion-icon[slot="start"] {
+  color: var(--brand-blue, #126fff);
+  font-size: 18px;
+  margin-inline-end: 9px;
+}
+
+.field-error {
+  margin: -6px 2px 0;
+  color: #c0362c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.error-box {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #fdecec;
+  border: 1px solid #f6c9c9;
+  color: #b42318;
+  font-size: 13.5px;
+}
+
+.primary-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 52px;
+  margin-top: 2px;
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  font-size: 15px;
+  color: #ffffff;
+  border-radius: 14px;
+  background: var(--brand-grad-btn);
+  box-shadow: 0 10px 22px rgba(0, 89, 216, 0.25);
+
+  &:disabled { opacity: 0.55; cursor: not-allowed; }
+
+  ion-spinner { width: 22px; height: 22px; }
+}
+
+/* ---- Responsive móvil: una sola columna ---- */
+@media (max-width: 560px) {
+  ion-modal.form-modal {
+    --width: calc(100% - 20px);
+    --border-radius: 18px;
+  }
+
+  .modal-body { padding: 14px; }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+}

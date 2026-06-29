@@ -9,7 +9,9 @@ export const environment: Environment = {
   // auth-service (desplegado en Render)
   apiUrl: 'https://vendingcom-auth-service.onrender.com/api/v1',
   // customer-service (desplegado en Render)
-  customerApiUrl: 'https://vendingcom-customer-service.onrender.com/api/v1'
+  customerApiUrl: 'https://vendingcom-customer-service.onrender.com/api/v1',
+  // location-service (en desarrollo: se ejecuta en local en el puerto 8083)
+  locationApiUrl: 'http://localhost:8083/api/v1'
 };
 
 /*
