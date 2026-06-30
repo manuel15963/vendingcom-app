@@ -21,16 +21,16 @@ const URLS = {
   machineApiUrl: 'https://vendingcom-machine-service.onrender.com/api/v1',
 };
 
-function readKey() {
-  if (process.env.GOOGLE_MAPS_API_KEY) {
-    return process.env.GOOGLE_MAPS_API_KEY.trim();
+function readVar(name) {
+  if (process.env[name]) {
+    return process.env[name].trim();
   }
   const dotenv = path.join(ROOT, '.env');
   if (fs.existsSync(dotenv)) {
     const line = fs
       .readFileSync(dotenv, 'utf8')
       .split('\n')
-      .find((l) => l.trim().startsWith('GOOGLE_MAPS_API_KEY='));
+      .find((l) => l.trim().startsWith(name + '='));
     if (line) {
       return line.slice(line.indexOf('=') + 1).trim().replace(/^["']|["']$/g, '');
     }
@@ -38,7 +38,9 @@ function readKey() {
   return '';
 }
 
-const key = readKey();
+const key = readVar('GOOGLE_MAPS_API_KEY');
+const supabaseUrl = readVar('SUPABASE_URL');
+const supabaseAnonKey = readVar('SUPABASE_ANON_KEY');
 
 function render(production) {
   return `import { Environment } from './environment.model';
@@ -51,7 +53,9 @@ export const environment: Environment = {
   customerApiUrl: '${URLS.customerApiUrl}',
   locationApiUrl: '${URLS.locationApiUrl}',
   machineApiUrl: '${URLS.machineApiUrl}',
-  googleMapsApiKey: '${key}'
+  googleMapsApiKey: '${key}',
+  supabaseUrl: '${supabaseUrl}',
+  supabaseAnonKey: '${supabaseAnonKey}'
 };
 `;
 }
@@ -61,6 +65,11 @@ fs.writeFileSync(path.join(ENV_DIR, 'environment.prod.ts'), render(true));
 
 console.log(
   key
-    ? '✓ environments generados con la API key de Google Maps.'
-    : '⚠ environments generados SIN API key. Define GOOGLE_MAPS_API_KEY en .env (local) o en Render (deploy).',
+    ? '✓ environments: API key de Google Maps inyectada.'
+    : '⚠ environments SIN Google Maps API key (define GOOGLE_MAPS_API_KEY).',
+);
+console.log(
+  supabaseUrl && supabaseAnonKey
+    ? '✓ environments: Supabase Storage configurado.'
+    : '⚠ environments SIN Supabase Storage (define SUPABASE_URL y SUPABASE_ANON_KEY para subir documentos).',
 );

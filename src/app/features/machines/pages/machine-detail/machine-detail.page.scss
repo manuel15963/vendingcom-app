@@ -113,6 +113,38 @@
   line-height: 1.35;
 }
 
+/* ---- Selector de archivo (subida a Storage) ---- */
+.file-pick {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 10px 14px;
+  border: 1.5px dashed #c7d4ea;
+  border-radius: 12px;
+  background: #f7faff;
+  color: #0059d8;
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+  text-align: center;
+
+  ion-icon { font-size: 20px; }
+  ion-spinner { width: 20px; height: 20px; }
+  .ok { color: #0f7a37; }
+
+  &:hover { background: #eff5ff; }
+  &.busy { cursor: progress; }
+}
+
+.field-error {
+  margin: -6px 2px 0;
+  color: #c0362c;
+  font-size: 12px;
+  font-weight: 700;
+}
+
 .ghost-btn {
   display: inline-flex;
   align-items: center;

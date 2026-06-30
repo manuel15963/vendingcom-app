@@ -240,9 +240,25 @@
             <ion-select-option [value]="t.parameterId">{{ t.parameterValue }}</ion-select-option>
           }
         </ion-select>
-        <ion-input label="Nombre del archivo" labelPlacement="stacked" fill="outline" [(ngModel)]="documentForm.fileName" name="docName" maxlength="150" placeholder="Ej. Factura-2026.pdf"></ion-input>
-        <ion-input label="URL del archivo" labelPlacement="stacked" fill="outline" [(ngModel)]="documentForm.fileUrl" name="docUrl" placeholder="https://..."></ion-input>
-        <ion-input label="Tipo MIME" labelPlacement="stacked" fill="outline" [(ngModel)]="documentForm.mimeType" name="docMime" placeholder="application/pdf (opcional)"></ion-input>
+        <label class="file-pick" [class.busy]="uploading">
+          <input type="file" hidden accept=".pdf,image/*,.doc,.docx,.xls,.xlsx" (change)="onDocumentFileSelected($event)">
+          @if (uploading) {
+            <ion-spinner name="dots"></ion-spinner>
+            <span>Subiendo…</span>
+          } @else if (documentForm.fileUrl) {
+            <ion-icon name="document-text-outline" aria-hidden="true"></ion-icon>
+            <span class="ok">Archivo listo ✓ · toca para cambiar</span>
+          } @else {
+            <ion-icon name="cloud-upload-outline" aria-hidden="true"></ion-icon>
+            <span>Elegir archivo (PDF o imagen)</span>
+          }
+        </label>
+        @if (uploadError) {
+          <small class="field-error">{{ uploadError }}</small>
+        }
+
+        <ion-input label="Nombre del documento" labelPlacement="stacked" fill="outline" [(ngModel)]="documentForm.fileName" name="docName" maxlength="150" placeholder="Se completa con el archivo (editable)"></ion-input>
+
         <button class="primary-btn" [disabled]="!canSaveDocument || saving" (click)="saveDocument()">
           @if (saving) { <ion-spinner name="crescent"></ion-spinner> } @else { Agregar documento }
         </button>
