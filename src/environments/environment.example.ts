@@ -5,9 +5,10 @@ import { Environment } from './environment.model';
  * Los archivos reales environment.ts y environment.prod.ts se GENERAN con
  * `node scripts/set-env.js` (lo corren npm start / npm run build) y están en .gitignore.
  *
- * La API key de Google Maps sale de la variable GOOGLE_MAPS_API_KEY:
- *   - Local:  crea un archivo .env en la raíz del front con  GOOGLE_MAPS_API_KEY=tu_key
- *   - Render: agrégala en Environment del sitio del frontend
+ * Las llaves salen de variables de entorno (.env local o Render):
+ *   - GOOGLE_MAPS_API_KEY  -> Google Maps
+ *   - SUPABASE_URL         -> https://xxxx.supabase.co  (subida de documentos)
+ *   - SUPABASE_ANON_KEY    -> anon key del proyecto Supabase (pública)
  */
 export const environment: Environment = {
   production: false,
@@ -15,5 +16,7 @@ export const environment: Environment = {
   customerApiUrl: 'https://vendingcom-customer-service.onrender.com/api/v1',
   locationApiUrl: 'https://location-service-bzms.onrender.com/api/v1',
   machineApiUrl: 'https://vendingcom-machine-service.onrender.com/api/v1',
-  googleMapsApiKey: 'TU_API_KEY_DE_GOOGLE_MAPS'
+  googleMapsApiKey: 'TU_API_KEY_DE_GOOGLE_MAPS',
+  supabaseUrl: 'https://TU_PROYECTO.supabase.co',
+  supabaseAnonKey: 'TU_SUPABASE_ANON_KEY'
 };

@@ -25,6 +25,7 @@ import {
   addOutline,
   businessOutline,
   calendarOutline,
+  cloudUploadOutline,
   constructOutline,
   cubeOutline,
   documentTextOutline,
@@ -51,6 +52,7 @@ import { MachineCatalogApiService } from '../../data-access/machine-catalog-api.
 import { MachineDocumentsApiService } from '../../data-access/machine-documents-api.service';
 import { MachineEventsApiService } from '../../data-access/machine-events-api.service';
 import { MachinesApiService } from '../../data-access/machines-api.service';
+import { MachineStorageService } from '../../data-access/machine-storage.service';
 import {
   MachineDetailResponse,
   MachineDocumentResponse,
@@ -84,6 +86,7 @@ export class MachineDetailPage implements OnInit {
   private readonly machinesApi = inject(MachinesApiService);
   private readonly eventsApi = inject(MachineEventsApiService);
   private readonly documentsApi = inject(MachineDocumentsApiService);
+  private readonly storage = inject(MachineStorageService);
   private readonly catalogApi = inject(MachineCatalogApiService);
   private readonly customersApi = inject(CustomersApiService);
   private readonly locationsApi = inject(LocationsApiService);
@@ -120,7 +123,9 @@ export class MachineDetailPage implements OnInit {
   // Documentos
   documentTypes: MachineParameter[] = [];
   documentModalOpen = false;
-  documentForm = { documentTypeId: null as number | null, fileName: '', fileUrl: '', mimeType: '' };
+  documentForm = { documentTypeId: null as number | null, fileName: '', fileUrl: '', fileSize: null as number | null, mimeType: '' };
+  uploading = false;
+  uploadError = '';
 
   saving = false;
 
@@ -129,6 +134,7 @@ export class MachineDetailPage implements OnInit {
       businessOutline, locationOutline, hardwareChipOutline, pricetagOutline,
       calendarOutline, documentTextOutline, qrCodeOutline, swapHorizontalOutline,
       constructOutline, addOutline, openOutline, trashOutline, cubeOutline, warningOutline,
+      cloudUploadOutline,
     });
   }
 
@@ -279,12 +285,50 @@ export class MachineDetailPage implements OnInit {
 
   // ---------- DOCUMENTOS ----------
   openDocumentModal(): void {
-    this.documentForm = { documentTypeId: this.documentTypes[0]?.parameterId ?? null, fileName: '', fileUrl: '', mimeType: '' };
+    this.documentForm = { documentTypeId: this.documentTypes[0]?.parameterId ?? null, fileName: '', fileUrl: '', fileSize: null, mimeType: '' };
+    this.uploading = false;
+    this.uploadError = '';
     this.documentModalOpen = true;
+  }
+
+  /** Sube el archivo elegido a Supabase Storage y llena la URL/nombre/tamaño/tipo. */
+  onDocumentFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';   // permite volver a elegir el mismo archivo
+    if (!file) {
+      return;
+    }
+    if (!this.storage.configured) {
+      this.uploadError = 'La subida no está configurada (faltan las llaves de Supabase).';
+      return;
+    }
+    this.uploadError = '';
+    this.uploading = true;
+    this.documentForm.fileName = file.name;
+    this.storage.upload(file, `machine-${this.machineId}`).subscribe({
+      next: (uploaded) => {
+        this.documentForm.fileUrl = uploaded.url;
+        this.documentForm.fileSize = uploaded.size;
+        this.documentForm.mimeType = uploaded.mimeType ?? '';
+        this.uploading = false;
+      },
+      error: (err: HttpErrorResponse) => {
+        this.uploading = false;
+        const detail =
+          err.status === 0
+            ? 'no se pudo contactar a Supabase (reinicia "npm start", o revisa red/CORS).'
+            : `HTTP ${err.status} — ${(err.error as { message?: string; error?: string })?.message
+                || (err.error as { error?: string })?.error || err.message || 'error desconocido'}`;
+        this.uploadError = `No se pudo subir: ${detail}`;
+        console.error('[Supabase upload]', err);
+      },
+    });
   }
 
   get canSaveDocument(): boolean {
     return (
+      !this.uploading &&
       this.documentForm.documentTypeId != null &&
       this.documentForm.fileName.trim().length > 0 &&
       this.documentForm.fileUrl.trim().length > 0
@@ -300,6 +344,7 @@ export class MachineDetailPage implements OnInit {
         documentTypeId: this.documentForm.documentTypeId as number,
         fileName: this.documentForm.fileName.trim(),
         fileUrl: this.documentForm.fileUrl.trim(),
+        fileSize: this.documentForm.fileSize ?? undefined,
         mimeType: this.documentForm.mimeType.trim() || undefined,
       }),
       'Documento agregado correctamente',

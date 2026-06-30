@@ -13,4 +13,8 @@ export interface Environment {
   machineApiUrl: string;
   /** API key de Google Maps (Maps JavaScript + Places + Geocoding). Restríngela por referrer. */
   googleMapsApiKey: string;
+  /** URL del proyecto Supabase (https://xxxx.supabase.co). Para subir documentos a Storage. */
+  supabaseUrl: string;
+  /** Anon key de Supabase (pública por diseño). La seguridad la dan las políticas del bucket. */
+  supabaseAnonKey: string;
 }
