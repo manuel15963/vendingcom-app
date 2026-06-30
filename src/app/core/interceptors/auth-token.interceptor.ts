@@ -19,10 +19,11 @@ export const authTokenInterceptor: HttpInterceptorFn = (request, next) => {
 };
 
 function isApiRequest(url: string): boolean {
-  // El mismo token (emitido por auth) sirve para auth, customer y location.
+  // El mismo token (emitido por auth) sirve para auth, customer, location y machine.
   return url.startsWith(environment.apiUrl)
     || url.startsWith(environment.customerApiUrl)
-    || url.startsWith(environment.locationApiUrl);
+    || url.startsWith(environment.locationApiUrl)
+    || url.startsWith(environment.machineApiUrl);
 }
 
 function isPublicAuthRequest(url: string): boolean {

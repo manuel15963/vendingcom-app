@@ -18,6 +18,7 @@ const URLS = {
   apiUrl: 'https://vendingcom-auth-service.onrender.com/api/v1',
   customerApiUrl: 'https://vendingcom-customer-service.onrender.com/api/v1',
   locationApiUrl: 'https://location-service-bzms.onrender.com/api/v1',
+  machineApiUrl: 'https://vendingcom-machine-service.onrender.com/api/v1',
 };
 
 function readKey() {
@@ -49,6 +50,7 @@ export const environment: Environment = {
   apiUrl: '${URLS.apiUrl}',
   customerApiUrl: '${URLS.customerApiUrl}',
   locationApiUrl: '${URLS.locationApiUrl}',
+  machineApiUrl: '${URLS.machineApiUrl}',
   googleMapsApiKey: '${key}'
 };
 `;

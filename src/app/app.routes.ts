@@ -66,6 +66,16 @@ export const routes: Routes = [
     loadComponent: () => import('./features/locations/pages/location-detail/location-detail.page').then((m) => m.LocationDetailPage),
   },
   {
+    path: 'machines',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/machines/pages/machines-list/machines-list.page').then((m) => m.MachinesListPage),
+  },
+  {
+    path: 'machines/:id',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/machines/pages/machine-detail/machine-detail.page').then((m) => m.MachineDetailPage),
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full',

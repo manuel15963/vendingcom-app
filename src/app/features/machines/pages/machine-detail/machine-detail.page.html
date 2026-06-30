@@ -1,0 +1,271 @@
+<ion-header class="app-header">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/machines" text="Máquinas"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Ficha de máquina</ion-title>
+    <ion-buttons slot="end">
+      @if (machine) {
+        <ion-button class="edit-btn" (click)="editMachine()">Editar</ion-button>
+      }
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="page-bg">
+  <div class="page">
+
+    @if (loading) {
+      <div class="center"><ion-spinner name="crescent"></ion-spinner></div>
+    } @else if (errorMessage) {
+      <div class="state error">{{ errorMessage }}</div>
+    } @else if (machine) {
+
+      <!-- Cabecera -->
+      <div class="hero">
+        <app-avatar [name]="machine.model || machine.code || 'VEND'" size="lg"></app-avatar>
+        <div class="hero-info">
+          <h2>{{ machine.model || machine.code }}</h2>
+          <p>{{ machine.code }}{{ machine.brand ? ' · ' + machine.brand : '' }}</p>
+          <app-status-pill [active]="isActive(machine.machineStatusName)" [label]="machine.machineStatusName || ''"></app-status-pill>
+          @if (maintenance?.state === 'overdue') {
+            <span class="maint-alert overdue"><ion-icon name="warning-outline" aria-hidden="true"></ion-icon> Mantenimiento vencido</span>
+          } @else if (maintenance?.state === 'soon') {
+            <span class="maint-alert soon"><ion-icon name="construct-outline" aria-hidden="true"></ion-icon> Mantenimiento próximo</span>
+          }
+        </div>
+        <button class="ghost-btn" (click)="openStatusModal()">
+          <ion-icon name="swap-horizontal-outline" aria-hidden="true"></ion-icon>
+          <span>Cambiar estado</span>
+        </button>
+      </div>
+
+      <!-- Pestañas -->
+      <div class="segments">
+        <button [class.active]="segment === 'info'" (click)="segment = 'info'">Datos</button>
+        <button [class.active]="segment === 'events'" (click)="segment = 'events'">Eventos ({{ detail?.events?.length || 0 }})</button>
+        <button [class.active]="segment === 'documents'" (click)="segment = 'documents'">Documentos ({{ detail?.documents?.length || 0 }})</button>
+      </div>
+
+      <!-- ===== DATOS ===== -->
+      @if (segment === 'info') {
+        <div class="card data-grid">
+          <div class="data-row">
+            <ion-icon name="business-outline" aria-hidden="true"></ion-icon>
+            <span class="lbl">Cliente</span>
+            <span class="val">{{ customerName || '—' }}</span>
+          </div>
+          <div class="data-row">
+            <ion-icon name="location-outline" aria-hidden="true"></ion-icon>
+            <span class="lbl">Ubicación</span>
+            <span class="val">{{ locationName || '—' }}</span>
+          </div>
+          <div class="data-row">
+            <ion-icon name="hardware-chip-outline" aria-hidden="true"></ion-icon>
+            <span class="lbl">Modelo</span>
+            <span class="val">{{ machine.model || '—' }}</span>
+          </div>
+          <div class="data-row">
+            <ion-icon name="pricetag-outline" aria-hidden="true"></ion-icon>
+            <span class="lbl">Marca</span>
+            <span class="val">{{ machine.brand || '—' }}</span>
+          </div>
+          <div class="data-row">
+            <ion-icon name="cube-outline" aria-hidden="true"></ion-icon>
+            <span class="lbl">Tipo</span>
+            <span class="val">
+              {{ machine.machineTypeName || '—' }}
+              <small class="cap">Categoría del equipo (su hardware), no los productos que carga.</small>
+            </span>
+          </div>
+          <div class="data-row">
+            <ion-icon name="qr-code-outline" aria-hidden="true"></ion-icon>
+            <span class="lbl">N° de serie</span>
+            <span class="val mono">{{ machine.serialNumber || '—' }}</span>
+          </div>
+          <div class="data-row">
+            <ion-icon name="qr-code-outline" aria-hidden="true"></ion-icon>
+            <span class="lbl">Código / QR</span>
+            <span class="val mono">{{ machine.code }}{{ machine.qrCode ? ' · ' + machine.qrCode : '' }}</span>
+          </div>
+          <div class="data-row">
+            <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
+            <span class="lbl">Instalación</span>
+            <span class="val">{{ (machine.installationDate | date:'dd/MM/yyyy') || '—' }}</span>
+          </div>
+          <div class="data-row">
+            <ion-icon name="construct-outline" aria-hidden="true"></ion-icon>
+            <span class="lbl">Último mantenimiento</span>
+            <span class="val">{{ (machine.lastMaintenanceDate | date:'dd/MM/yyyy') || '—' }}</span>
+          </div>
+          <div class="data-row">
+            <ion-icon name="construct-outline" aria-hidden="true"></ion-icon>
+            <span class="lbl">Mantenimiento</span>
+            <span class="val">
+              @if (machine.maintenanceIntervalDays) {
+                Cada {{ machine.maintenanceIntervalDays }} días@if (maintenance?.nextDate) {<span> · próximo {{ maintenance!.nextDate | date:'dd/MM/yyyy' }}</span>
+                  @if (maintenance?.state === 'overdue') {
+                    <span class="badge-inline overdue">Vencido</span>
+                  } @else if (maintenance?.state === 'soon') {
+                    <span class="badge-inline soon">En {{ maintenance!.daysLeft }} días</span>
+                  }
+                }
+              } @else {
+                <span class="muted">Sin programar</span>
+              }
+            </span>
+          </div>
+          @if (machine.notes) {
+            <div class="data-row">
+              <ion-icon name="document-text-outline" aria-hidden="true"></ion-icon>
+              <span class="lbl">Notas</span>
+              <span class="val">{{ machine.notes }}</span>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- ===== EVENTOS ===== -->
+      @if (segment === 'events') {
+        <div class="section-head">
+          <h3>Historial de eventos</h3>
+          <button class="add-btn" (click)="openEventModal()">
+            <ion-icon name="add-outline" aria-hidden="true"></ion-icon> Evento
+          </button>
+        </div>
+        @if (!detail?.events?.length) {
+          <div class="state empty"><span class="emoji">🗒️</span><p>Aún no hay eventos registrados.</p></div>
+        } @else {
+          <div class="list">
+            @for (e of detail!.events; track e.eventId) {
+              <div class="list-item">
+                <div class="li-main">
+                  <span class="badge">{{ e.eventTypeName || 'Evento' }}</span>
+                  <strong>{{ e.title }}</strong>
+                  @if (e.description) { <small>{{ e.description }}</small> }
+                </div>
+                <span class="li-date">{{ e.eventDate | date:'dd/MM/yyyy HH:mm' }}</span>
+              </div>
+            }
+          </div>
+        }
+      }
+
+      <!-- ===== DOCUMENTOS ===== -->
+      @if (segment === 'documents') {
+        <div class="section-head">
+          <h3>Documentos</h3>
+          <button class="add-btn" (click)="openDocumentModal()">
+            <ion-icon name="add-outline" aria-hidden="true"></ion-icon> Documento
+          </button>
+        </div>
+        @if (!detail?.documents?.length) {
+          <div class="state empty"><span class="emoji">📎</span><p>Aún no hay documentos adjuntos.</p></div>
+        } @else {
+          <div class="list">
+            @for (d of detail!.documents; track d.documentId) {
+              <div class="list-item">
+                <div class="li-main">
+                  <span class="badge">{{ d.documentTypeName || 'Documento' }}</span>
+                  <strong>{{ d.fileName }}</strong>
+                  @if (d.mimeType) { <small>{{ d.mimeType }}</small> }
+                </div>
+                <div class="li-actions">
+                  <a class="icon-btn view" [href]="d.fileUrl" target="_blank" rel="noopener" aria-label="Abrir" title="Abrir">
+                    <ion-icon name="open-outline" aria-hidden="true"></ion-icon>
+                  </a>
+                  <button class="icon-btn danger" (click)="askDeleteDocument(d)" aria-label="Eliminar" title="Eliminar">
+                    <ion-icon name="trash-outline" aria-hidden="true"></ion-icon>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      }
+
+    }
+  </div>
+</ion-content>
+
+<!-- ===== Modal: cambiar estado ===== -->
+<ion-modal class="sheet-modal" [isOpen]="statusModalOpen" (didDismiss)="statusModalOpen = false">
+  <ng-template>
+    <div class="modal-shell">
+      <div class="modal-top"><h3>Cambiar estado</h3><button class="modal-close" (click)="statusModalOpen = false">✕</button></div>
+      <div class="modal-body">
+        <ion-select label="Nuevo estado" labelPlacement="stacked" fill="outline" interface="alert"
+          [(ngModel)]="statusForm.code" name="statusCode" placeholder="Seleccione un estado">
+          @for (s of statuses; track s.code) {
+            <ion-select-option [value]="s.code">{{ s.label }}</ion-select-option>
+          }
+        </ion-select>
+        <button class="primary-btn" [disabled]="!statusForm.code" (click)="applyStatus()">Aplicar</button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- ===== Modal: nuevo evento ===== -->
+<ion-modal class="sheet-modal" [isOpen]="eventModalOpen" (didDismiss)="eventModalOpen = false">
+  <ng-template>
+    <div class="modal-shell">
+      <div class="modal-top"><h3>Nuevo evento</h3><button class="modal-close" (click)="eventModalOpen = false">✕</button></div>
+      <div class="modal-body">
+        <ion-select label="Tipo de evento" labelPlacement="stacked" fill="outline" interface="alert"
+          [(ngModel)]="eventForm.eventTypeId" name="eventType" placeholder="Seleccione un tipo">
+          @for (t of eventTypes; track t.parameterId) {
+            <ion-select-option [value]="t.parameterId">{{ t.parameterValue }}</ion-select-option>
+          }
+        </ion-select>
+        <ion-input label="Título" labelPlacement="stacked" fill="outline" [(ngModel)]="eventForm.title" name="eventTitle" maxlength="150" placeholder="Ej. Mantenimiento preventivo"></ion-input>
+        <ion-textarea label="Descripción" labelPlacement="stacked" fill="outline" [(ngModel)]="eventForm.description" name="eventDesc" [autoGrow]="true" [rows]="2" placeholder="Detalle (opcional)"></ion-textarea>
+        <button class="primary-btn" [disabled]="!canSaveEvent || saving" (click)="saveEvent()">
+          @if (saving) { <ion-spinner name="crescent"></ion-spinner> } @else { Registrar evento }
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- ===== Modal: nuevo documento ===== -->
+<ion-modal class="sheet-modal" [isOpen]="documentModalOpen" (didDismiss)="documentModalOpen = false">
+  <ng-template>
+    <div class="modal-shell">
+      <div class="modal-top"><h3>Nuevo documento</h3><button class="modal-close" (click)="documentModalOpen = false">✕</button></div>
+      <div class="modal-body">
+        <ion-select label="Tipo de documento" labelPlacement="stacked" fill="outline" interface="alert"
+          [(ngModel)]="documentForm.documentTypeId" name="docType" placeholder="Seleccione un tipo">
+          @for (t of documentTypes; track t.parameterId) {
+            <ion-select-option [value]="t.parameterId">{{ t.parameterValue }}</ion-select-option>
+          }
+        </ion-select>
+        <ion-input label="Nombre del archivo" labelPlacement="stacked" fill="outline" [(ngModel)]="documentForm.fileName" name="docName" maxlength="150" placeholder="Ej. Factura-2026.pdf"></ion-input>
+        <ion-input label="URL del archivo" labelPlacement="stacked" fill="outline" [(ngModel)]="documentForm.fileUrl" name="docUrl" placeholder="https://..."></ion-input>
+        <ion-input label="Tipo MIME" labelPlacement="stacked" fill="outline" [(ngModel)]="documentForm.mimeType" name="docMime" placeholder="application/pdf (opcional)"></ion-input>
+        <button class="primary-btn" [disabled]="!canSaveDocument || saving" (click)="saveDocument()">
+          @if (saving) { <ion-spinner name="crescent"></ion-spinner> } @else { Agregar documento }
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</ion-modal>
+
+<!-- Modal editar máquina -->
+<app-machine-form-modal
+  [open]="editModalOpen"
+  [machineId]="machineId"
+  (closed)="editModalOpen = false"
+  (saved)="onEditSaved()">
+</app-machine-form-modal>
+
+<!-- Confirmación reutilizable -->
+<app-confirm-dialog
+  [open]="confirmState.open"
+  [title]="confirmState.title"
+  [message]="confirmState.message"
+  [confirmText]="confirmState.confirmText"
+  [variant]="confirmState.danger ? 'danger' : 'primary'"
+  (confirmed)="onConfirmAccept()"
+  (cancelled)="onConfirmCancel()">
+</app-confirm-dialog>
