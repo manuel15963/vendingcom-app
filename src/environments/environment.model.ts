@@ -9,6 +9,8 @@ export interface Environment {
   customerApiUrl: string;
   /** location-service. */
   locationApiUrl: string;
+  /** machine-service. */
+  machineApiUrl: string;
   /** API key de Google Maps (Maps JavaScript + Places + Geocoding). Restríngela por referrer. */
   googleMapsApiKey: string;
 }

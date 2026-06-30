@@ -14,5 +14,6 @@ export const environment: Environment = {
   apiUrl: 'https://vendingcom-auth-service.onrender.com/api/v1',
   customerApiUrl: 'https://vendingcom-customer-service.onrender.com/api/v1',
   locationApiUrl: 'https://location-service-bzms.onrender.com/api/v1',
+  machineApiUrl: 'https://vendingcom-machine-service.onrender.com/api/v1',
   googleMapsApiKey: 'TU_API_KEY_DE_GOOGLE_MAPS'
 };

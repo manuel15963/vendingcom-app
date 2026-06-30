@@ -1,0 +1,218 @@
+:host {
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.app-header ion-toolbar {
+  --background: var(--brand-grad-header);
+  --color: #ffffff;
+  --border-width: 0;
+}
+
+.app-header ion-title { font-weight: 800; letter-spacing: 0.2px; }
+.app-header ion-back-button { --color: #ffffff; font-weight: 700; }
+.new-btn { --color: #ffffff; font-weight: 800; text-transform: none; }
+
+.page-bg { --background: #f6f9fe; }
+
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 18px 16px 28px;
+}
+
+/* ---- Buscador ---- */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px 8px 14px;
+  background: #ffffff;
+  border: 1px solid #e4ebf5;
+  border-radius: 14px;
+  box-shadow: 0 14px 38px rgba(15, 23, 42, 0.06);
+}
+
+.search-icon { width: 20px; height: 20px; color: #94a3b8; flex-shrink: 0; }
+
+.search-input {
+  flex: 1;
+  border: 0;
+  outline: 0;
+  font: inherit;
+  font-size: 15px;
+  color: #0b1736;
+  background: transparent;
+}
+
+.search-input::placeholder { color: #9aa7bd; }
+
+.search-btn {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  font-size: 13px;
+  color: #ffffff;
+  padding: 9px 16px;
+  border-radius: 10px;
+  background: var(--brand-grad-btn);
+  box-shadow: 0 8px 18px rgba(0, 89, 216, 0.22);
+}
+
+/* ---- Cards ---- */
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.machine-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  padding: 14px 16px;
+  border: 1px solid #e4ebf5;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.05);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.machine-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.1);
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+
+  strong {
+    color: #0b1736;
+    font-size: 15px;
+    font-weight: 800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  small {
+    color: #64748b;
+    font-size: 13px;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+/* ---- Acciones por fila ---- */
+.row-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.icon-btn {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  background: #f1f5f9;
+  color: #475569;
+  transition: filter 0.15s ease;
+
+  ion-icon { font-size: 19px; }
+
+  &:hover { filter: brightness(0.97); }
+  &.view { background: #e3edff; color: #0059d8; }
+  &.edit { background: #eafaf0; color: #0f7a37; }
+}
+
+.maint-dot {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  flex-shrink: 0;
+
+  ion-icon { font-size: 15px; }
+
+  &.overdue { color: #b42318; background: #fdecec; }
+  &.soon { color: #9a6a00; background: #fff4d6; }
+}
+
+/* ---- Estados ---- */
+.center { display: flex; justify-content: center; padding: 48px 0; }
+
+.state {
+  margin-top: 28px;
+  text-align: center;
+  color: #64748b;
+
+  &.error { color: var(--ion-color-danger); }
+}
+
+.empty {
+  .emoji { font-size: 40px; }
+  p { margin: 10px 0 16px; }
+}
+
+.primary-btn {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  color: #ffffff;
+  padding: 11px 20px;
+  border-radius: 12px;
+  background: var(--brand-grad-btn);
+  box-shadow: 0 8px 18px rgba(0, 89, 216, 0.22);
+}
+
+/* ---- Paginación ---- */
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 20px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.page-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #e4ebf5;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 18px;
+  color: #126fff;
+  font-weight: 800;
+
+  &:disabled { color: #cbd5e1; cursor: not-allowed; }
+}
+
+@media (max-width: 480px) {
+  .page { padding: 14px 12px 24px; }
+  .search-bar { gap: 6px; padding: 6px 8px 6px 12px; }
+  .search-input { font-size: 14px; }
+  .search-btn { padding: 9px 13px; font-size: 12.5px; }
+  .machine-card { gap: 10px; padding: 12px 13px; }
+  .info strong { font-size: 14px; }
+  .info small { font-size: 12px; }
+  .icon-btn { width: 34px; height: 34px; }
+  .pager { gap: 12px; font-size: 12px; }
+}
